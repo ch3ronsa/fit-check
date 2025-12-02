@@ -89,13 +89,12 @@ function App() {
     if (element) {
       console.log("Starting html2canvas capture...");
       const canvas = await html2canvas(element, {
-        scale: 1, // Lowest scale for maximum stability
+        scale: 2, // Increased from 1 for better history quality
         useCORS: true,
         allowTaint: false,
         backgroundColor: null,
-        logging: true, // Enable logging to see what's happening in console
+        logging: false,
         onclone: (clonedDoc) => {
-          console.log("Cloning document for capture...");
           const scoreBadge = clonedDoc.getElementById('style-score-badge');
           if (scoreBadge) {
             scoreBadge.style.display = 'none';
@@ -103,8 +102,8 @@ function App() {
         }
       });
       console.log("Canvas captured successfully");
-      // Use JPEG with 0.5 quality to drastically reduce size for localStorage
-      return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.5));
+      // Increased quality to 0.8 for better visual fidelity
+      return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
     }
     return null;
   };

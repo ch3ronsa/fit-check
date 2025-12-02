@@ -336,7 +336,7 @@ function App() {
                 }`}
             >
               <Sparkles className={photo ? 'animate-spin-slow' : ''} />
-              {photo ? 'RATE MY FIT' : 'Upload Photo First'}
+              {photo ? 'RATE MY PHOTO' : 'Upload Photo First'}
             </button>
           ) : (
             <>

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database } from 'lucide-react';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import WalletConnect from './components/WalletConnect';
 import Profile from './pages/Profile';
 import { playSuccessSound } from '../../src/lib/utils';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from './constants';
 
 const FRAMES = [
   '/src/assets/frames/frame1.png',
@@ -35,7 +36,7 @@ const FRAMES = [
 ];
 
 function App() {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [selectedFrame, setSelectedFrame] = useState(FRAMES[0]);
   const [photo, setPhoto] = useState<File | null>(null);
   const [showHype, setShowHype] = useState(false);
@@ -182,6 +183,8 @@ function App() {
     await saveToHistory();
   };
 
+  const { writeContractAsync } = useWriteContract();
+
   const handleMint = async () => {
     if (!isConnected) {
       alert("Please connect your wallet first!");
@@ -189,23 +192,26 @@ function App() {
     }
     setIsMinting(true);
 
-    // Simulate Minting Process
     try {
-      // Safety timeout to prevent infinite loading
-      const mintPromise = new Promise((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error("Minting timed out (30s limit)")), 30000);
-        saveToHistory().then(() => {
-          clearTimeout(timer);
-          resolve(true);
-        }).catch((err) => {
-          clearTimeout(timer);
-          reject(err);
-        });
+      // 1. Upload image to IPFS (Simulation for now, using a placeholder URI)
+      // In a real app, we would upload the blob to Pinata/IPFS here.
+      const tokenURI = "ipfs://bafkreic653o454654654654";
+
+      // 2. Write to Smart Contract
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: 'safeMint',
+        args: [address!, tokenURI],
       });
 
-      await mintPromise;
+      console.log("Transaction Hash:", hash);
+
+      // 3. Save to Local History
+      await saveToHistory();
+
       playSuccessSound(); // Play victory sound! 🎵
-      alert("Successfully Minted on Base! 🔵 (Simulation)");
+      alert(`Successfully Minted on Base! 🔵\nTx: ${hash}`);
     } catch (error) {
       console.error("Mint failed", error);
       alert("Minting failed. Please try again.");

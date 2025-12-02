@@ -194,7 +194,14 @@ function App() {
     if (!finalScore) return;
     const text = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck @base`;
     const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+
+    // Use Farcaster SDK for native sharing in Mini Apps
+    if (sdk && sdk.actions && sdk.actions.openUrl) {
+      sdk.actions.openUrl(url);
+    } else {
+      // Fallback for non-Farcaster environments
+      window.open(url, '_blank');
+    }
 
     // Auto-save to history on share
     await saveToHistory();

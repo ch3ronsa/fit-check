@@ -1,0 +1,18 @@
+{
+    "accountAssociation": {
+        "header": "eyJmaWQiOjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0",
+        "payload": "eyJkb21haW4iOiJjaGVjay1maXQtdHdvLnZlcmNlbC5hcHAifQ",
+        "signature": "MHg..."
+    },
+    "frame": {
+        "version": "1",
+        "name": "Base Fit Check Studio",
+        "iconUrl": "https://check-fit-two.vercel.app/icon.png",
+        "homeUrl": "https://check-fit-two.vercel.app",
+        "imageUrl": "https://check-fit-two.vercel.app/preview.png",
+        "buttonTitle": "Check My Fit",
+        "splashImageUrl": "https://check-fit-two.vercel.app/splash.png",
+        "splashBackgroundColor": "#0A0E27",
+        "webhookUrl": "https://check-fit-two.vercel.app/api/webhook"
+    }
+}

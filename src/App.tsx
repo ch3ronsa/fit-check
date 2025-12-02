@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database } from 'lucide-react';
 import { useAccount, useWriteContract } from 'wagmi';
@@ -6,8 +6,9 @@ import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import WalletConnect from './components/WalletConnect';
 import Profile from './pages/Profile';
-import { playSuccessSound } from '../../src/lib/utils';
+import { playSuccessSound } from './lib/utils';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from './constants';
+import sdk from '@farcaster/frame-sdk';
 
 const FRAMES = [
   '/src/assets/frames/frame1.png',
@@ -45,6 +46,22 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [currentView, setCurrentView] = useState<'home' | 'profile'>('home');
   const [isMinting, setIsMinting] = useState(false);
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+
+  // ... imports (This comment was misleading, the import was here previously)
+
+  // function App() { // This was the start of the App function in the original context
+  // ... hooks
+
+  useEffect(() => {
+    const load = async () => {
+      sdk.actions.ready();
+    };
+    if (sdk && !isSDKLoaded) {
+      setIsSDKLoaded(true);
+      load();
+    }
+  }, [isSDKLoaded]);
 
   useEffect(() => {
     if (isDarkMode) {

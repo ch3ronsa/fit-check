@@ -162,12 +162,19 @@ function App() {
   };
 
   const handleDownload = async () => {
-    const element = document.getElementById('fit-check-canvas');
-    if (element) {
+    try {
+      const element = document.getElementById('fit-check-canvas');
+      if (!element) {
+        console.error("Canvas element not found");
+        return;
+      }
+
+      console.log("Starting download capture...");
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: 4,
         useCORS: true,
         backgroundColor: null,
+        logging: true,
         onclone: (clonedDoc) => {
           const scoreBadge = clonedDoc.getElementById('style-score-badge');
           if (scoreBadge) {
@@ -175,12 +182,20 @@ function App() {
           }
         }
       });
+
+      const dataUrl = canvas.toDataURL('image/png');
+
+      // Create temporary link
       const link = document.createElement('a');
       link.download = `base-fit-check-${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
+      document.body.appendChild(link); // Required for Firefox
       link.click();
+      document.body.removeChild(link);
 
-      // Removed auto-save to history to keep "Save in my phone" purely local
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Failed to save image. Please try again.");
     }
   };
 

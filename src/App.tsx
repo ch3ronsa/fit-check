@@ -181,8 +181,7 @@ function App() {
       link.href = canvas.toDataURL('image/png');
       link.click();
 
-      // Auto-save to history on download
-      await saveToHistory();
+      // Removed auto-save to history to keep "Save in my phone" purely local
     }
   };
 
@@ -353,7 +352,7 @@ function App() {
                   className="bg-gray-800 hover:bg-gray-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
                 >
                   <Download size={20} />
-                  Save
+                  Save in my phone
                 </button>
                 <button
                   onClick={handleShare}

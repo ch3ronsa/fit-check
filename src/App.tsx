@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
-import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database } from 'lucide-react';
+import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database, HelpCircle } from 'lucide-react';
 import { useAccount, useWriteContract } from 'wagmi';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import WalletConnect from './components/WalletConnect';
 import Profile from './pages/Profile';
+import HowToUse from './pages/HowToUse';
 import { playSuccessSound } from './lib/utils';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from './constants';
 import sdk from '@farcaster/frame-sdk';
@@ -44,14 +45,9 @@ function App() {
   const [finalScore, setFinalScore] = useState<number | null>(null);
   const [finalMessage, setFinalMessage] = useState<string>('');
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [currentView, setCurrentView] = useState<'home' | 'profile'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'profile' | 'how-to'>('home');
   const [isMinting, setIsMinting] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-
-  // ... imports (This comment was misleading, the import was here previously)
-
-  // function App() { // This was the start of the App function in the original context
-  // ... hooks
 
   useEffect(() => {
     const load = async () => {
@@ -248,6 +244,10 @@ function App() {
     return <Profile onBack={() => setCurrentView('home')} />;
   }
 
+  if (currentView === 'how-to') {
+    return <HowToUse onBack={() => setCurrentView('home')} />;
+  }
+
   return (
     <div className="min-h-screen transition-colors duration-300 bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans pb-20">
       {/* Header */}
@@ -272,6 +272,13 @@ function App() {
             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
           >
             {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-600" />}
+          </button>
+          <button
+            onClick={() => setCurrentView('how-to')}
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+            title="How to Use"
+          >
+            <HelpCircle size={20} className="text-gray-500 hover:text-base-blue transition-colors" />
           </button>
           <WalletConnect />
         </div>

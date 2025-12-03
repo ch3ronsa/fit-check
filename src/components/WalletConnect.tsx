@@ -35,7 +35,7 @@ const WalletConnect: React.FC = () => {
             </button>
 
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-4">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
                     <div className="bg-[var(--card-bg)] border border-gray-800 rounded-t-2xl sm:rounded-2xl p-6 w-full max-w-sm shadow-2xl relative animate-in slide-in-from-bottom-10 fade-in duration-300">
                         <button
                             onClick={() => setShowModal(false)}

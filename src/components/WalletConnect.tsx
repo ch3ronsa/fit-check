@@ -50,9 +50,13 @@ const WalletConnect: React.FC = () => {
                             {/* Base App Wallet (Coinbase Smart Wallet) */}
                             <button
                                 onClick={() => {
-                                    const connector = connectors.find(c => c.id === 'coinbaseWalletSDK');
-                                    if (connector) connect({ connector });
-                                    setShowModal(false);
+                                    const connector = connectors.find(c => c.id === 'coinbaseWalletSDK' || c.id === 'coinbaseWallet');
+                                    if (connector) {
+                                        connect({ connector });
+                                        setShowModal(false);
+                                    } else {
+                                        alert("Base App Wallet connector not found. Please try again.");
+                                    }
                                 }}
                                 className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
                             >
@@ -65,9 +69,13 @@ const WalletConnect: React.FC = () => {
                             {/* Coinbase Wallet */}
                             <button
                                 onClick={() => {
-                                    const connector = connectors.find(c => c.id === 'coinbaseWalletSDK');
-                                    if (connector) connect({ connector });
-                                    setShowModal(false);
+                                    const connector = connectors.find(c => c.id === 'coinbaseWalletSDK' || c.id === 'coinbaseWallet');
+                                    if (connector) {
+                                        connect({ connector });
+                                        setShowModal(false);
+                                    } else {
+                                        alert("Coinbase Wallet connector not found. Please install Coinbase Wallet.");
+                                    }
                                 }}
                                 className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
                             >
@@ -81,8 +89,13 @@ const WalletConnect: React.FC = () => {
                             <button
                                 onClick={() => {
                                     const connector = connectors.find(c => c.id === 'injected');
-                                    if (connector) connect({ connector });
-                                    setShowModal(false);
+                                    if (connector) {
+                                        connect({ connector });
+                                        setShowModal(false);
+                                    } else {
+                                        // Fallback to any available connector if injected is missing, or alert
+                                        alert("Farcaster Wallet (Injected) not found. Are you in a Farcaster app?");
+                                    }
                                 }}
                                 className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
                             >

@@ -46,64 +46,28 @@ const WalletConnect: React.FC = () => {
 
                         <h2 className="text-xl font-bold mb-4 text-center">Connect Wallet</h2>
 
-                        <div className="space-y-3 max-h-[70vh] overflow-y-auto">
-                            {/* Base App Wallet (Coinbase Smart Wallet) */}
-                            <button
-                                onClick={() => {
-                                    const connector = connectors.find(c => c.id === 'coinbaseWalletSDK' || c.id === 'coinbaseWallet');
-                                    if (connector) {
+                        <div className="space-y-3">
+                            {connectors.map((connector) => (
+                                <button
+                                    key={connector.uid}
+                                    onClick={() => {
                                         connect({ connector });
                                         setShowModal(false);
-                                    } else {
-                                        alert("Base App Wallet connector not found. Please try again.");
-                                    }
-                                }}
-                                className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
-                            >
-                                <span className="font-medium">Base App Wallet</span>
-                                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                                    <div className="w-4 h-4 bg-white rounded-full"></div>
-                                </div>
-                            </button>
-
-                            {/* Coinbase Wallet */}
-                            <button
-                                onClick={() => {
-                                    const connector = connectors.find(c => c.id === 'coinbaseWalletSDK' || c.id === 'coinbaseWallet');
-                                    if (connector) {
-                                        connect({ connector });
-                                        setShowModal(false);
-                                    } else {
-                                        alert("Coinbase Wallet connector not found. Please install Coinbase Wallet.");
-                                    }
-                                }}
-                                className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
-                            >
-                                <span className="font-medium">Coinbase Wallet</span>
-                                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                                    <Wallet size={18} className="text-white" />
-                                </div>
-                            </button>
-
-                            {/* Farcaster Wallet (Injected) */}
-                            <button
-                                onClick={() => {
-                                    const connector = connectors.find(c => c.id === 'injected');
-                                    if (connector) {
-                                        connect({ connector });
-                                        setShowModal(false);
-                                    } else {
-                                        // Fallback to any available connector if injected is missing, or alert
-                                        alert("Farcaster Wallet (Injected) not found. Are you in a Farcaster app?");
-                                    }
-                                }}
-                                className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
-                            >
-                                <span className="font-medium">Farcaster Wallet</span>
-                                <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                                    <Wallet size={18} className="text-white" />
-                                </div>
-                            </button>
+                                    }}
+                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
+                                >
+                                    <span className="font-medium">{connector.name}</span>
+                                    {connector.name === 'WalletConnect' ? (
+                                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                            <Wallet size={18} className="text-white" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                                            <Wallet size={18} className="text-white" />
+                                        </div>
+                                    )}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>

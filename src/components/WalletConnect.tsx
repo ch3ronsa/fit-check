@@ -35,8 +35,8 @@ const WalletConnect: React.FC = () => {
             </button>
 
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div className="bg-[var(--card-bg)] border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl relative">
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-4">
+                    <div className="bg-[var(--card-bg)] border border-gray-800 rounded-t-2xl sm:rounded-2xl p-6 w-full max-w-sm shadow-2xl relative animate-in slide-in-from-bottom-10 fade-in duration-300">
                         <button
                             onClick={() => setShowModal(false)}
                             className="absolute top-4 right-4 text-gray-400 hover:text-white"
@@ -46,53 +46,51 @@ const WalletConnect: React.FC = () => {
 
                         <h2 className="text-xl font-bold mb-4 text-center">Connect Wallet</h2>
 
-                        <div className="space-y-3">
-                            <div className="space-y-3">
-                                {/* Base App Wallet (Coinbase Smart Wallet) */}
-                                <button
-                                    onClick={() => {
-                                        const connector = connectors.find(c => c.id === 'coinbaseWalletSDK');
-                                        if (connector) connect({ connector });
-                                        setShowModal(false);
-                                    }}
-                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
-                                >
-                                    <span className="font-medium">Base App Wallet</span>
-                                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                                        <div className="w-4 h-4 bg-white rounded-full"></div>
-                                    </div>
-                                </button>
+                        <div className="space-y-3 max-h-[70vh] overflow-y-auto">
+                            {/* Base App Wallet (Coinbase Smart Wallet) */}
+                            <button
+                                onClick={() => {
+                                    const connector = connectors.find(c => c.id === 'coinbaseWalletSDK');
+                                    if (connector) connect({ connector });
+                                    setShowModal(false);
+                                }}
+                                className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
+                            >
+                                <span className="font-medium">Base App Wallet</span>
+                                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                                    <div className="w-4 h-4 bg-white rounded-full"></div>
+                                </div>
+                            </button>
 
-                                {/* Coinbase Wallet */}
-                                <button
-                                    onClick={() => {
-                                        const connector = connectors.find(c => c.id === 'coinbaseWalletSDK');
-                                        if (connector) connect({ connector });
-                                        setShowModal(false);
-                                    }}
-                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
-                                >
-                                    <span className="font-medium">Coinbase Wallet</span>
-                                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                                        <Wallet size={18} className="text-white" />
-                                    </div>
-                                </button>
+                            {/* Coinbase Wallet */}
+                            <button
+                                onClick={() => {
+                                    const connector = connectors.find(c => c.id === 'coinbaseWalletSDK');
+                                    if (connector) connect({ connector });
+                                    setShowModal(false);
+                                }}
+                                className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
+                            >
+                                <span className="font-medium">Coinbase Wallet</span>
+                                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <Wallet size={18} className="text-white" />
+                                </div>
+                            </button>
 
-                                {/* Farcaster Wallet (Injected) */}
-                                <button
-                                    onClick={() => {
-                                        const connector = connectors.find(c => c.id === 'injected');
-                                        if (connector) connect({ connector });
-                                        setShowModal(false);
-                                    }}
-                                    className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
-                                >
-                                    <span className="font-medium">Farcaster Wallet</span>
-                                    <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                                        <Wallet size={18} className="text-white" />
-                                    </div>
-                                </button>
-                            </div>
+                            {/* Farcaster Wallet (Injected) */}
+                            <button
+                                onClick={() => {
+                                    const connector = connectors.find(c => c.id === 'injected');
+                                    if (connector) connect({ connector });
+                                    setShowModal(false);
+                                }}
+                                className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700 transition-all border border-gray-700 hover:border-base-blue group"
+                            >
+                                <span className="font-medium">Farcaster Wallet</span>
+                                <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                                    <Wallet size={18} className="text-white" />
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>

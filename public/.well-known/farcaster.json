@@ -1,6 +1,6 @@
 {
     "frame": {
-        "version": "next",
+        "version": "vNext",
         "name": "Base Fit Check Studio",
         "iconUrl": "https://base-fit-check.vercel.app/icon.png",
         "splashImageUrl": "https://base-fit-check.vercel.app/icon.png",

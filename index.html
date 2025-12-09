@@ -11,11 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@700;900&display=swap"
     rel="stylesheet">
 
-  <!-- Farcaster Frame Meta Tags -->
-  <meta property="fc:frame" content="vNext" />
-  <meta property="fc:frame:image" content="https://check-fit-two.vercel.app/icon.png" />
-  <meta property="og:image" content="https://check-fit-two.vercel.app/icon.png" />
+  <!-- Farcaster Mini App Embed -->
+  <meta name="fc:miniapp"
+    content='{"version":"1","imageUrl":"https://check-fit-two.vercel.app/icon.png","button":{"title":"Check My Fit","action":{"type":"launch_frame","name":"Base Fit Check Studio","url":"https://check-fit-two.vercel.app","splashImageUrl":"https://check-fit-two.vercel.app/icon.png","splashBackgroundColor":"#0052FF"}}}' />
+
+  <!-- Open Graph -->
   <meta property="og:title" content="Base Fit Check Studio" />
+  <meta property="og:image" content="https://check-fit-two.vercel.app/icon.png" />
 </head>
 
 <body>

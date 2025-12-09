@@ -4,11 +4,13 @@
         "payload": "eyJkb21haW4iOiJjaGVjay1maXQtdHdvLnZlcmNlbC5hcHAifQ",
         "signature": "OKpwiD6iEeozVuX0GkwrjbKrFFW7j3KLJw9YdK5Y0M5BBfMX/ShxXMmn97LW86T/H1J0XaJFCct7osjgoaBkQBs="
     },
-    "frame": {
+    "miniapp": {
         "version": "1",
         "name": "Base Fit Check Studio",
         "iconUrl": "https://check-fit-two.vercel.app/icon.png",
         "homeUrl": "https://check-fit-two.vercel.app",
+        "imageUrl": "https://check-fit-two.vercel.app/icon.png",
+        "buttonTitle": "Check My Fit",
         "splashImageUrl": "https://check-fit-two.vercel.app/icon.png",
         "splashBackgroundColor": "#0052FF"
     }

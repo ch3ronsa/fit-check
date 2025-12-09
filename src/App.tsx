@@ -4,7 +4,7 @@ import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database, Help
 import { useAccount, useWriteContract } from 'wagmi';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
-import WalletConnect from './components/WalletConnect';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Profile from './pages/Profile';
 import HowToUse from './pages/HowToUse';
 import { playSuccessSound } from './lib/utils';
@@ -161,7 +161,7 @@ function App() {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (format: 'square' | 'story' = 'square') => {
     try {
       const element = document.getElementById('fit-check-canvas');
       if (!element) {
@@ -169,12 +169,12 @@ function App() {
         return;
       }
 
-      console.log("Starting download capture...");
+      console.log(`Starting download capture (${format})...`);
       const canvas = await html2canvas(element, {
         scale: 4,
         useCORS: true,
         backgroundColor: null,
-        logging: true,
+        logging: false,
         onclone: (clonedDoc) => {
           const scoreBadge = clonedDoc.getElementById('style-score-badge');
           if (scoreBadge) {
@@ -183,11 +183,58 @@ function App() {
         }
       });
 
-      const dataUrl = canvas.toDataURL('image/png');
+      let dataUrl = canvas.toDataURL('image/png');
+
+      if (format === 'story') {
+        // Create a new canvas for 9:16 Story format
+        const storyCanvas = document.createElement('canvas');
+        const ctx = storyCanvas.getContext('2d');
+        if (ctx) {
+          // Set dimensions for high-quality story (1080x1920)
+          const width = 1080;
+          const height = 1920;
+          storyCanvas.width = width;
+          storyCanvas.height = height;
+
+          // Fill background with a dark gradient
+          const gradient = ctx.createLinearGradient(0, 0, 0, height);
+          gradient.addColorStop(0, '#0052FF'); // Base Blue
+          gradient.addColorStop(1, '#000000'); // Black
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, width, height);
+
+          // Draw the square image in the center
+          // Calculate scaling to fit width with some padding
+          const padding = 80;
+          const targetWidth = width - (padding * 2);
+          const scale = targetWidth / canvas.width;
+          const targetHeight = canvas.height * scale;
+
+          const x = padding;
+          const y = (height - targetHeight) / 2;
+
+          // Add shadow
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+          ctx.shadowBlur = 50;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 20;
+
+          ctx.drawImage(canvas, x, y, targetWidth, targetHeight);
+
+          // Add branding text
+          ctx.shadowColor = 'transparent';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 40px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('BASE FIT CHECK', width / 2, y + targetHeight + 100);
+
+          dataUrl = storyCanvas.toDataURL('image/png');
+        }
+      }
 
       // Create temporary link
       const link = document.createElement('a');
-      link.download = `base-fit-check-${Date.now()}.png`;
+      link.download = `base-fit-check-${format}-${Date.now()}.png`;
       link.href = dataUrl;
       document.body.appendChild(link); // Required for Firefox
       link.click();
@@ -293,7 +340,7 @@ function App() {
           >
             <HelpCircle size={20} className="text-gray-500 hover:text-base-blue transition-colors" />
           </button>
-          <WalletConnect />
+          <ConnectButton showBalance={false} chainStatus="icon" accountStatus="avatar" />
         </div>
       </header>
 
@@ -361,13 +408,22 @@ function App() {
           ) : (
             <>
               <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4">
-                <button
-                  onClick={handleDownload}
-                  className="bg-gray-800 hover:bg-gray-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
-                >
-                  <Download size={20} />
-                  Save in my phone
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleDownload('square')}
+                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-sm"
+                  >
+                    <Download size={18} />
+                    Square
+                  </button>
+                  <button
+                    onClick={() => handleDownload('story')}
+                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-sm"
+                  >
+                    <Download size={18} />
+                    Story
+                  </button>
+                </div>
                 <button
                   onClick={handleShare}
                   className="bg-[#855DCD] hover:bg-[#7C52C7] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(133,93,205,0.4)]"

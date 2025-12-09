@@ -1,18 +1,13 @@
-import { http, createConfig } from 'wagmi'
-import { base } from 'wagmi/chains'
-import { injected, walletConnect } from 'wagmi/connectors'
+import { base } from 'wagmi/chains';
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { type Config } from 'wagmi';
 
-// TODO: Replace with actual Project ID from WalletConnect Cloud
+// Project ID from WalletConnect Cloud
 const projectId = '3fcc6bba6f1de962d911bb5b5c3dba68'; // Demo ID
 
-export const config = createConfig({
+export const config: Config = getDefaultConfig({
+    appName: 'Base Fit Check Studio',
+    projectId,
     chains: [base],
-    connectors: [
-        injected(),
-        walletConnect({ projectId }),
-    ],
-    // ...
-    transports: {
-        [base.id]: http(),
-    },
-})
+    ssr: false, // Vite is client-side
+});

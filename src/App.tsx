@@ -56,7 +56,7 @@ function App() {
   const [showIdentity, setShowIdentity] = useState(false); // Toggle state for identity
 
   // Filters hook
-  const { activeFilter, applyFilter, getFilterStyle, filters } = useFilters();
+  const { activeFilter, applyFilter, getFilterStyle } = useFilters();
 
   useEffect(() => {
     const load = async () => {

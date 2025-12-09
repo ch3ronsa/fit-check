@@ -15,7 +15,9 @@ export const useUserIdentity = () => {
     const { data: ensAvatar } = useEnsAvatar({
         name: ensName!,
         chainId: base.id,
-        enabled: !!ensName,
+        query: {
+            enabled: !!ensName,
+        }
     });
 
     const identity = useMemo(() => {

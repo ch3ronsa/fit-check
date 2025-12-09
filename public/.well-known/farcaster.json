@@ -1,10 +1,15 @@
 {
+    "accountAssociation": {
+        "header": "eyJmaWQiOjU3OTA1NywidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDg4YjZkYzYzMUM0NDViRjEwRTExZTRENEM5MTViYmE5OTkyMjI2YzcifQ",
+        "payload": "eyJkb21haW4iOiJjaGVjay1maXQtdHdvLnZlcmNlbC5hcHAifQ",
+        "signature": "OKpwiD6iEeozVuX0GkwrjbKrFFW7j3KLJw9YdK5Y0M5BBfMX/ShxXMmn97LW86T/H1J0XaJFCct7osjgoaBkQBs="
+    },
     "frame": {
         "version": "vNext",
         "name": "Base Fit Check Studio",
-        "iconUrl": "https://base-fit-check.vercel.app/icon.png",
-        "splashImageUrl": "https://base-fit-check.vercel.app/icon.png",
+        "iconUrl": "https://check-fit-two.vercel.app/icon.png",
+        "splashImageUrl": "https://check-fit-two.vercel.app/icon.png",
         "splashBackgroundColor": "#0052FF",
-        "homeUrl": "https://base-fit-check.vercel.app"
+        "homeUrl": "https://check-fit-two.vercel.app"
     }
 }

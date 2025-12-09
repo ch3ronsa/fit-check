@@ -1,15 +1,36 @@
 import { useAccount, useEnsName, useEnsAvatar } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
+import sdk, { type Context } from '@farcaster/frame-sdk';
 
 export const useUserIdentity = () => {
     const { address, isConnected } = useAccount();
+    const [farcasterUser, setFarcasterUser] = useState<{ username?: string; pfpUrl?: string; fid?: number } | null>(null);
+
+    // Fetch Farcaster Context
+    useEffect(() => {
+        const loadContext = async () => {
+            try {
+                const context = await sdk.context;
+                if (context?.user) {
+                    setFarcasterUser({
+                        username: context.user.username,
+                        pfpUrl: context.user.pfpUrl,
+                        fid: context.user.fid
+                    });
+                }
+            } catch (err) {
+                console.warn("Farcaster context not loaded:", err);
+            }
+        };
+        loadContext();
+    }, []);
 
     // Fetch Basename (ENS on Base)
     // We prioritize Base chain for Basenames
     const { data: ensName } = useEnsName({
         address,
-        chainId: base.id, // Explicitly check on Base for Basenames
+        chainId: base.id,
     });
 
     const { data: ensAvatar } = useEnsAvatar({
@@ -21,15 +42,22 @@ export const useUserIdentity = () => {
     });
 
     const identity = useMemo(() => {
-        if (!isConnected || !address) return null;
+        // Priority: Basename -> Farcaster Username -> Truncated Address
+        const displayName = ensName || farcasterUser?.username || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null);
+
+        // Priority: ENS Avatar -> Farcaster PFP -> Default Blockie (in UI)
+        const avatar = ensAvatar || farcasterUser?.pfpUrl || null;
 
         return {
             address,
-            name: ensName || null,
-            displayName: ensName || `${address.slice(0, 6)}...${address.slice(-4)}`,
-            avatar: ensAvatar || null,
+            name: ensName || farcasterUser?.username || null,
+            displayName,
+            avatar,
+            farcaster: farcasterUser,
+            isConnected: isConnected || !!farcasterUser,
+            source: ensName ? 'basename' : (farcasterUser ? 'farcaster' : 'wallet')
         };
-    }, [address, ensName, ensAvatar, isConnected]);
+    }, [address, ensName, ensAvatar, isConnected, farcasterUser]);
 
     return identity;
 };

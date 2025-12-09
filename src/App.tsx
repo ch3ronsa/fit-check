@@ -354,7 +354,9 @@ function App() {
           {isConnected && identity?.displayName && (
             <div className="hidden sm:flex flex-col items-end mr-2 ml-2">
               <span className="text-xs font-bold text-base-blue">{identity.displayName}</span>
-              {identity.name && <span className="text-[10px] text-gray-400">Verified Base ID</span>}
+              <span className="text-[10px] text-gray-400">
+                {identity.source === 'basename' ? 'Verified Base ID' : (identity.source === 'farcaster' ? 'Farcaster Connected' : 'Wallet Connected')}
+              </span>
             </div>
           )}
           <ConnectButton showBalance={false} chainStatus="icon" accountStatus="avatar" />

@@ -1,13 +1,39 @@
 import { base } from 'wagmi/chains';
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { type Config } from 'wagmi';
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import {
+    coinbaseWallet,
+    walletConnectWallet,
+    metaMaskWallet,
+    rainbowWallet,
+} from '@rainbow-me/rainbowkit/wallets';
+import { createConfig, http } from 'wagmi';
 
 // Project ID from WalletConnect Cloud
 const projectId = '3fcc6bba6f1de962d911bb5b5c3dba68'; // Demo ID
 
-export const config: Config = getDefaultConfig({
-    appName: 'Base Fit Check Studio',
-    projectId,
+const connectors = connectorsForWallets(
+    [
+        {
+            groupName: 'Recommended',
+            wallets: [
+                coinbaseWallet,
+                walletConnectWallet,
+                metaMaskWallet,
+                rainbowWallet,
+            ],
+        },
+    ],
+    {
+        appName: 'Base Fit Check Studio',
+        projectId,
+    }
+);
+
+export const config = createConfig({
+    connectors,
     chains: [base],
-    ssr: false, // Vite is client-side
+    transports: {
+        [base.id]: http(),
+    },
+    // SSR false not needed in createConfig, handled by Vite params mostly or wagmi logic
 });

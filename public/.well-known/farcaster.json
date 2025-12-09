@@ -5,11 +5,11 @@
         "signature": "OKpwiD6iEeozVuX0GkwrjbKrFFW7j3KLJw9YdK5Y0M5BBfMX/ShxXMmn97LW86T/H1J0XaJFCct7osjgoaBkQBs="
     },
     "frame": {
-        "version": "vNext",
+        "version": "1",
         "name": "Base Fit Check Studio",
         "iconUrl": "https://check-fit-two.vercel.app/icon.png",
+        "homeUrl": "https://check-fit-two.vercel.app",
         "splashImageUrl": "https://check-fit-two.vercel.app/icon.png",
-        "splashBackgroundColor": "#0052FF",
-        "homeUrl": "https://check-fit-two.vercel.app"
+        "splashBackgroundColor": "#0052FF"
     }
 }

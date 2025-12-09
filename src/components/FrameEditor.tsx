@@ -5,9 +5,10 @@ interface FrameEditorProps {
     selectedFrame: string;
     onPhotoUpload: (file: File) => void;
     children?: React.ReactNode;
+    filterStyle?: string;
 }
 
-const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload, children }) => {
+const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload, children, filterStyle = 'none' }) => {
     const [image, setImage] = useState<string | null>(null);
     const [scale, setScale] = useState(1);
     const [rotation, setRotation] = useState(0);
@@ -76,7 +77,8 @@ const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload,
                         className="absolute w-full h-full flex items-center justify-center pointer-events-none"
                         style={{
                             transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale})`,
-                            transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                            transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                            filter: filterStyle,
                         }}
                     >
                         <img

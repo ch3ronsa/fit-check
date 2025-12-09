@@ -5,6 +5,8 @@ import { useAccount, useWriteContract } from 'wagmi';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import FilterControls from './components/FilterControls';
+import { useFilters } from './hooks/useFilters';
 import Profile from './pages/Profile';
 import HowToUse from './pages/HowToUse';
 import { playSuccessSound } from './lib/utils';
@@ -48,6 +50,9 @@ function App() {
   const [currentView, setCurrentView] = useState<'home' | 'profile' | 'how-to'>('home');
   const [isMinting, setIsMinting] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+
+  // Filters hook
+  const { activeFilter, applyFilter, getFilterStyle, filters } = useFilters();
 
   useEffect(() => {
     const load = async () => {
@@ -371,6 +376,7 @@ function App() {
             <FrameEditor
               selectedFrame={selectedFrame}
               onPhotoUpload={handlePhotoUpload}
+              filterStyle={getFilterStyle()}
             >
               <HypeOverlay
                 show={showHype}
@@ -378,6 +384,13 @@ function App() {
               />
             </FrameEditor>
           </div>
+
+          {/* Filter Controls */}
+          {photo && (
+            <div className="mt-4">
+              <FilterControls activeFilter={activeFilter} onFilterChange={applyFilter} />
+            </div>
+          )}
 
           {/* Hype Message Display (Below Photo) */}
           {finalMessage && (

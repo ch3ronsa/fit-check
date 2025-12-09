@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Share2, Flame, Calendar, CheckCircle2 } from 'lucide-react';
-import { useAccount, useEnsName, useEnsAvatar } from 'wagmi';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useUserIdentity } from '../hooks/useUserIdentity';
 
 interface SavedFit {
     id: string;
@@ -15,28 +15,120 @@ interface ProfileProps {
     onBack: () => void;
 }
 
-import { useUserIdentity } from '../hooks/useUserIdentity';
-
-// ... (keep interface definitions)
-
 const Profile: React.FC<ProfileProps> = ({ onBack }) => {
     const identity = useUserIdentity();
-    const { address } = useAccount(); // Keep for address check if needed, but identity has it too
 
     const [fits, setFits] = useState<SavedFit[]>([]);
     const [streak, setStreak] = useState(0);
     const [showCelebration, setShowCelebration] = useState(false);
 
-    // ... (keep logic for streak calculation)
+    useEffect(() => {
+        const saved = localStorage.getItem('fitCheckHistory');
+        if (saved) {
+            const parsedFits: SavedFit[] = JSON.parse(saved);
+
+            // Sort by ID (Timestamp) Descending - Newest First
+            const sortedFits = parsedFits.sort((a, b) => Number(b.id) - Number(a.id));
+            setFits(sortedFits);
+
+            // Calculate Streak
+            calculateStreak(sortedFits);
+        }
+    }, []);
+
+    const calculateStreak = (history: SavedFit[]) => {
+        if (history.length === 0) {
+            setStreak(0);
+            return;
+        }
+
+        // Get unique dates (YYYY-MM-DD) from history in LOCAL TIME
+        const uniqueDates = Array.from(new Set(history.map(f => {
+            // Handle both old locale strings and new ISO strings
+            const d = new Date(f.date.includes('/') ? Number(f.id) : f.date);
+            // Use en-CA for YYYY-MM-DD format in local time
+            return d.toLocaleDateString('en-CA');
+        }))).sort().reverse(); // Newest first
+
+        console.log("Unique Dates (Local):", uniqueDates);
+
+        if (uniqueDates.length === 0) return;
+
+        const today = new Date().toLocaleDateString('en-CA');
+        const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
+
+        let currentStreak = 0;
+
+        // Check if the most recent activity is today or yesterday
+        const lastActive = uniqueDates[0];
+        if (lastActive !== today && lastActive !== yesterday) {
+            setStreak(0);
+            return;
+        }
+
+        currentStreak = 1;
+        for (let i = 0; i < uniqueDates.length - 1; i++) {
+            const current = new Date(uniqueDates[i]);
+            const next = new Date(uniqueDates[i + 1]);
+            const diffTime = Math.abs(current.getTime() - next.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) {
+                currentStreak++;
+            } else {
+                break;
+            }
+        }
+
+        setStreak(currentStreak);
+
+        // Trigger celebration if streak is 7 or more
+        if (currentStreak >= 7) {
+            setShowCelebration(true);
+            setTimeout(() => setShowCelebration(false), 5000);
+        }
+    };
+
+    const handleShare = (fit: SavedFit) => {
+        const text = `Checking my fit on Base! 🔵 My Style Score: ${fit.score}/100. "${fit.message}" Rate this look! 🛡️ #BaseFitCheck @base`;
+        const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    };
 
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-4 pb-20 relative overflow-hidden">
-            {/* ... (keep Celebration Overlay) ... */}
+            {/* Celebration Overlay */}
+            <AnimatePresence>
+                {showCelebration && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                    >
+                        <div className="text-center">
+                            <div className="text-6xl mb-4 animate-bounce">🎉🔥</div>
+                            <h2 className="text-4xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-2">
+                                7 DAY STREAK!
+                            </h2>
+                            <p className="text-xl text-white font-bold">You are officially ON FIRE!</p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <div className="max-w-lg mx-auto relative z-10">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                    {/* ... (keep header content) ... */}
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={onBack}
+                            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            <ArrowLeft size={24} />
+                        </button>
+                        <h1 className="font-display font-bold text-2xl">Profile</h1>
+                    </div>
                 </div>
 
                 {/* Profile Card */}

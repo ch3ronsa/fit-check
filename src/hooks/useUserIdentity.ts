@@ -1,7 +1,7 @@
 import { useAccount, useEnsName, useEnsAvatar } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { useMemo, useEffect, useState } from 'react';
-import sdk, { type Context } from '@farcaster/frame-sdk';
+import sdk from '@farcaster/frame-sdk';
 
 export const useUserIdentity = () => {
     const { address, isConnected } = useAccount();

@@ -7,6 +7,7 @@ import HypeOverlay from './components/HypeOverlay';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import FilterControls from './components/FilterControls';
 import { useFilters } from './hooks/useFilters';
+import { useUserIdentity } from './hooks/useUserIdentity';
 import Profile from './pages/Profile';
 import HowToUse from './pages/HowToUse';
 import { playSuccessSound } from './lib/utils';
@@ -41,6 +42,8 @@ const FRAMES = [
 
 function App() {
   const { isConnected, address } = useAccount();
+  // Identity Hook
+  const identity = useUserIdentity();
   const [selectedFrame, setSelectedFrame] = useState(FRAMES[0]);
   const [photo, setPhoto] = useState<File | null>(null);
   const [showHype, setShowHype] = useState(false);
@@ -50,6 +53,7 @@ function App() {
   const [currentView, setCurrentView] = useState<'home' | 'profile' | 'how-to'>('home');
   const [isMinting, setIsMinting] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+  const [showIdentity, setShowIdentity] = useState(false); // Toggle state for identity
 
   // Filters hook
   const { activeFilter, applyFilter, getFilterStyle, filters } = useFilters();
@@ -345,6 +349,14 @@ function App() {
           >
             <HelpCircle size={20} className="text-gray-500 hover:text-base-blue transition-colors" />
           </button>
+
+          {/* Identity Display (Mobile/Desktop) */}
+          {isConnected && identity?.displayName && (
+            <div className="hidden sm:flex flex-col items-end mr-2 ml-2">
+              <span className="text-xs font-bold text-base-blue">{identity.displayName}</span>
+              {identity.name && <span className="text-[10px] text-gray-400">Verified Base ID</span>}
+            </div>
+          )}
           <ConnectButton showBalance={false} chainStatus="icon" accountStatus="avatar" />
         </div>
       </header>
@@ -377,6 +389,8 @@ function App() {
               selectedFrame={selectedFrame}
               onPhotoUpload={handlePhotoUpload}
               filterStyle={getFilterStyle()}
+              identityName={identity?.displayName}
+              showIdentity={showIdentity}
             >
               <HypeOverlay
                 show={showHype}
@@ -385,10 +399,33 @@ function App() {
             </FrameEditor>
           </div>
 
-          {/* Filter Controls */}
+          {/* Filter Controls & Identity Toggle */}
           {photo && (
-            <div className="mt-4">
+            <div className="mt-4 space-y-4">
               <FilterControls activeFilter={activeFilter} onFilterChange={applyFilter} />
+
+              {/* Identity Toggle */}
+              {identity?.name && (
+                <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <UserIcon size={20} className="text-base-blue" />
+                    <div>
+                      <p className="font-bold text-sm text-white">Signed by {identity.displayName}</p>
+                      <p className="text-xs text-gray-400">Add your Basename to the photo</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowIdentity(!showIdentity)}
+                    className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${showIdentity ? 'bg-base-blue' : 'bg-gray-600'
+                      }`}
+                  >
+                    <div
+                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${showIdentity ? 'translate-x-6' : 'translate-x-0'
+                        }`}
+                    />
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

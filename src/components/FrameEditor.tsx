@@ -6,9 +6,11 @@ interface FrameEditorProps {
     onPhotoUpload: (file: File) => void;
     children?: React.ReactNode;
     filterStyle?: string;
+    identityName?: string | null;
+    showIdentity?: boolean;
 }
 
-const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload, children, filterStyle = 'none' }) => {
+const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload, children, filterStyle = 'none', identityName, showIdentity }) => {
     const [image, setImage] = useState<string | null>(null);
     const [scale, setScale] = useState(1);
     const [rotation, setRotation] = useState(0);
@@ -99,6 +101,15 @@ const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload,
                         className="w-full h-full object-contain"
                     />
                 </div>
+
+                {/* Identity Overlay */}
+                {showIdentity && identityName && (
+                    <div className="absolute bottom-4 right-4 z-20 pointer-events-none">
+                        <p className="font-display font-bold text-white text-lg drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm border border-white/20">
+                            {identityName}
+                        </p>
+                    </div>
+                )}
 
                 {/* Overlays (Hype Score, etc) */}
                 {children}

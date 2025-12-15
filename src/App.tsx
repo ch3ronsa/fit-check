@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database, HelpCircle } from 'lucide-react';
-import { useAccount, useWriteContract } from 'wagmi';
+import { useAccount, useSendCalls } from 'wagmi';
+import { encodeFunctionData } from 'viem';
+import { Attribution } from 'ox/erc8021';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -272,7 +274,9 @@ function App() {
     await saveToHistory();
   };
 
-  const { writeContractAsync } = useWriteContract();
+  // Builder Code for Base attribution
+  const BUILDER_CODE = "bc_t62valcb";
+  const { sendCalls } = useSendCalls();
 
   const handleMint = async () => {
     if (!isConnected) {
@@ -286,21 +290,33 @@ function App() {
       // In a real app, we would upload the blob to Pinata/IPFS here.
       const tokenURI = "ipfs://bafkreic653o454654654654";
 
-      // 2. Write to Smart Contract
-      const hash = await writeContractAsync({
-        address: CONTRACT_ADDRESS,
+      // 2. Encode the safeMint function call
+      const mintCalldata = encodeFunctionData({
         abi: CONTRACT_ABI,
         functionName: 'safeMint',
         args: [address!, tokenURI],
       });
 
-      console.log("Transaction Hash:", hash);
+      // 3. Send transaction with Builder Code attribution
+      const result = await sendCalls({
+        calls: [
+          {
+            to: CONTRACT_ADDRESS,
+            data: mintCalldata,
+          },
+        ],
+        capabilities: {
+          dataSuffix: Attribution.toDataSuffix({ codes: [BUILDER_CODE] }),
+        },
+      });
 
-      // 3. Save to Local History
+      console.log("Transaction Result:", result);
+
+      // 4. Save to Local History
       await saveToHistory();
 
       playSuccessSound(); // Play victory sound! 🎵
-      alert(`Successfully Minted on Base! 🔵\nTx: ${hash}`);
+      alert(`Successfully Minted on Base! 🔵\nResult: ${JSON.stringify(result)}`);
     } catch (error) {
       console.error("Mint failed", error);
       alert("Minting failed. Please try again.");

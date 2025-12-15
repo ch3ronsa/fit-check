@@ -89,10 +89,28 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
         }
     };
 
-    const handleShare = (fit: SavedFit) => {
-        const text = `Checking my fit on Base! 🔵 My Style Score: ${fit.score}/100. "${fit.message}" Rate this look! 🛡️ #BaseFitCheck @base`;
-        const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
+    const handleShare = async (fit: SavedFit) => {
+        const shareText = `Checking my fit on Base! 🔵 My Style Score: ${fit.score}/100. "${fit.message}" Rate this look! 🛡️ #BaseFitCheck`;
+        const shareUrl = 'https://check-fit-two.vercel.app';
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Base Fit Check',
+                    text: shareText,
+                    url: shareUrl,
+                });
+            } catch (err) {
+                console.log('Share cancelled:', err);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+                alert('Copied to clipboard!');
+            } catch (err) {
+                console.error('Clipboard failed:', err);
+            }
+        }
     };
 
     return (

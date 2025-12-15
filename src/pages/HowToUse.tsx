@@ -19,8 +19,8 @@ const HowToUse: React.FC<HowToUseProps> = ({ onBack }) => {
         },
         {
             icon: <Share2 className="w-8 h-8 text-purple-500" />,
-            title: "3. Share on Farcaster",
-            description: "Love your look? Share it directly to Warpcast with one click. Show off your score to your followers!"
+            title: "3. Share Your Look",
+            description: "Love your look? Share it with one click to any social platform. Show off your score to your followers!"
         },
         {
             icon: <Database className="w-8 h-8 text-green-500" />,

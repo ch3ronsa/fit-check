@@ -259,15 +259,29 @@ function App() {
 
   const handleShare = async () => {
     if (!finalScore) return;
-    const text = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck @base`;
-    const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
+    const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck`;
+    const shareUrl = 'https://check-fit-two.vercel.app';
 
-    // Use Farcaster SDK for native sharing in Mini Apps
-    if (sdk && sdk.actions && sdk.actions.openUrl) {
-      sdk.actions.openUrl(url);
+    // Try native Web Share API first (works on mobile and modern browsers)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Base Fit Check',
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        // User cancelled or share failed, do nothing
+        console.log('Share cancelled or failed:', err);
+      }
     } else {
-      // Fallback for non-Farcaster environments
-      window.open(url, '_blank');
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+        alert('Copied to clipboard! Paste it anywhere to share.');
+      } catch (err) {
+        console.error('Clipboard failed:', err);
+      }
     }
 
     // Auto-save to history on share

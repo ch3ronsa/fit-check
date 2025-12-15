@@ -67,3 +67,39 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* Touch Target Accessibility - Base Guidelines require 44px minimum */
+@layer components {
+  /* Ensure all interactive elements have minimum 44px touch target */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Global touch target enforcement for common interactive elements */
+button,
+a,
+[role="button"],
+input[type="checkbox"],
+input[type="radio"],
+.clickable {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Exception for inline text links */
+a:not(.btn):not([class*="p-"]):not([class*="rounded"]) {
+  min-height: auto;
+  min-width: auto;
+}
+
+/* Icon buttons specifically */
+button:has(svg:only-child),
+a:has(svg:only-child) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}

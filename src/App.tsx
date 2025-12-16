@@ -8,6 +8,7 @@ import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import BottomNav from './components/BottomNav';
 import OnboardingModal from './components/OnboardingModal';
+import ShareModal from './components/ShareModal';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import FilterControls from './components/FilterControls';
 import { useFilters } from './hooks/useFilters';
@@ -60,6 +61,10 @@ function App() {
   const [isMinting, setIsMinting] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [showIdentity, setShowIdentity] = useState(false); // Toggle state for identity
+
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareData, setShareData] = useState({ shareText: '', imageUrl: '' });
 
   // Onboarding modal - show on first visit
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -310,7 +315,7 @@ function App() {
     }
   };
 
-  // Share with image - upload to IPFS first, then share with link
+  // Share with image - upload to IPFS first, then open share modal
   const [isUploading, setIsUploading] = useState(false);
 
   const handleShare = async () => {
@@ -340,48 +345,14 @@ function App() {
       }
 
       const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck`;
-      const fullShareText = `${shareText}\n\n📸 ${imageUrl}`;
 
-      // Try Farcaster composeCast first (works inside Frame/Warpcast)
-      try {
-        const context = await sdk.context;
-        if (context) {
-          // We're in a Frame - use Farcaster SDK to compose cast
-          await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullShareText)}`);
-          return;
-        }
-      } catch {
-        // Not in Frame context, continue to native share
-      }
+      // Set share data and open modal
+      setShareData({ shareText, imageUrl });
+      setShowShareModal(true);
 
-      // Check if native share is available (for regular browsers)
-      if (navigator.share) {
-        // First, try sharing with file (best experience)
-        if (navigator.canShare) {
-          const file = new File([imageBlob], 'fit-check.png', { type: 'image/png' });
-          const shareDataWithFile = { text: fullShareText, files: [file] };
-
-          if (navigator.canShare(shareDataWithFile)) {
-            await navigator.share(shareDataWithFile);
-            return;
-          }
-        }
-
-        // Fallback: share text only (works on most mobile browsers)
-        await navigator.share({ text: fullShareText });
-        return;
-      }
-
-      // No native share available - copy to clipboard
-      await navigator.clipboard.writeText(fullShareText);
-      alert(`Copied to clipboard!\n\n📸 Image: ${imageUrl}`);
-
-    } catch (err: unknown) {
-      // User cancelled share or error occurred
-      const error = err as Error;
-      if (error.name !== 'AbortError') {
-        console.log('Share failed:', err);
-      }
+    } catch (err) {
+      console.log('Share preparation failed:', err);
+      alert('Could not prepare share. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -461,6 +432,14 @@ function App() {
     <div className="min-h-screen transition-colors duration-300 bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans pb-20">
       {/* Onboarding Modal - First Visit */}
       <OnboardingModal isOpen={showOnboarding} onClose={handleCloseOnboarding} />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        shareText={shareData.shareText}
+        imageUrl={shareData.imageUrl}
+      />
 
       {/* Header */}
       <header className="p-4 flex justify-between items-center border-b border-gray-800/50 bg-[var(--bg-primary)]/80 backdrop-blur-md sticky top-0 z-50">

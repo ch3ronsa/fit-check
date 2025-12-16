@@ -42,8 +42,8 @@ export const useUserIdentity = () => {
     });
 
     const identity = useMemo(() => {
-        // Priority: Basename -> Farcaster Username -> Truncated Address
-        const displayName = ensName || farcasterUser?.username || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null);
+        // Priority: Basename -> Farcaster Username -> Friendly fallback (NO 0x addresses per Base guidelines)
+        const displayName = ensName || farcasterUser?.username || (isConnected ? 'Based User' : null);
 
         // Priority: ENS Avatar -> Farcaster PFP -> Default Blockie (in UI)
         const avatar = ensAvatar || farcasterUser?.pfpUrl || null;

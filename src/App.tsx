@@ -309,35 +309,75 @@ function App() {
     }
   };
 
-  const handleShare = async () => {
+  // Share with image support
+  const handleShare = async (platform?: 'twitter' | 'telegram' | 'whatsapp' | 'native') => {
     if (!finalScore) return;
+
     const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck`;
     const shareUrl = 'https://check-fit-two.vercel.app';
+    const fullText = `${shareText}\n${shareUrl}`;
 
-    // Try native Web Share API first (works on mobile and modern browsers)
-    if (navigator.share) {
-      try {
+    // Platform-specific sharing
+    if (platform === 'twitter') {
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(twitterUrl, '_blank');
+      return;
+    }
+
+    if (platform === 'telegram') {
+      const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+      window.open(telegramUrl, '_blank');
+      return;
+    }
+
+    if (platform === 'whatsapp') {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(fullText)}`;
+      window.open(whatsappUrl, '_blank');
+      return;
+    }
+
+    // Native share with image
+    try {
+      const imageBlob = await generateImageBlob();
+
+      if (navigator.share && navigator.canShare) {
+        // Try sharing with image file
+        if (imageBlob) {
+          const file = new File([imageBlob], 'fit-check.png', { type: 'image/png' });
+          const shareData = {
+            title: 'Base Fit Check',
+            text: shareText,
+            url: shareUrl,
+            files: [file],
+          };
+
+          if (navigator.canShare(shareData)) {
+            await navigator.share(shareData);
+            return;
+          }
+        }
+
+        // Fallback: share without image
         await navigator.share({
           title: 'Base Fit Check',
           text: shareText,
           url: shareUrl,
         });
-      } catch (err) {
-        // User cancelled or share failed, do nothing
-        console.log('Share cancelled or failed:', err);
+      } else {
+        // No native share - copy to clipboard and show share buttons
+        await navigator.clipboard.writeText(fullText);
+        alert('Text copied! Use the platform buttons to share, or paste anywhere.');
       }
-    } else {
-      // Fallback: Copy to clipboard
+    } catch (err) {
+      console.log('Share cancelled or failed:', err);
+      // Try clipboard as final fallback
       try {
-        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-        alert('Copied to clipboard! Paste it anywhere to share.');
-      } catch (err) {
-        console.error('Clipboard failed:', err);
+        await navigator.clipboard.writeText(fullText);
+        alert('Text copied to clipboard!');
+      } catch (clipErr) {
+        console.error('Clipboard failed:', clipErr);
       }
     }
-
-    // Auto-save to history on share
-    await saveToHistory();
   };
 
   // Builder Code for Base attribution
@@ -572,13 +612,38 @@ function App() {
                     Story
                   </button>
                 </div>
-                <button
-                  onClick={handleShare}
-                  className="bg-[#855DCD] hover:bg-[#7C52C7] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(133,93,205,0.4)]"
-                >
-                  <Share2 size={20} />
-                  Share
-                </button>
+
+                {/* Share buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleShare('twitter')}
+                    className="flex-1 bg-black hover:bg-gray-900 text-white py-4 rounded-xl font-bold flex items-center justify-center transition-all"
+                    title="Share on X/Twitter"
+                  >
+                    𝕏
+                  </button>
+                  <button
+                    onClick={() => handleShare('telegram')}
+                    className="flex-1 bg-[#0088cc] hover:bg-[#0077b5] text-white py-4 rounded-xl font-bold flex items-center justify-center transition-all"
+                    title="Share on Telegram"
+                  >
+                    ✈️
+                  </button>
+                  <button
+                    onClick={() => handleShare('whatsapp')}
+                    className="flex-1 bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 rounded-xl font-bold flex items-center justify-center transition-all"
+                    title="Share on WhatsApp"
+                  >
+                    💬
+                  </button>
+                  <button
+                    onClick={() => handleShare('native')}
+                    className="flex-1 bg-[#855DCD] hover:bg-[#7C52C7] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-1 transition-all"
+                    title="More share options"
+                  >
+                    <Share2 size={16} />
+                  </button>
+                </div>
               </div>
 
               {/* Mint Button */}

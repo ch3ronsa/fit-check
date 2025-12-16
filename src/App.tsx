@@ -7,6 +7,7 @@ import { Attribution } from 'ox/erc8021';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import BottomNav from './components/BottomNav';
+import OnboardingModal from './components/OnboardingModal';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import FilterControls from './components/FilterControls';
 import { useFilters } from './hooks/useFilters';
@@ -57,6 +58,16 @@ function App() {
   const [isMinting, setIsMinting] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [showIdentity, setShowIdentity] = useState(false); // Toggle state for identity
+
+  // Onboarding modal - show on first visit
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem('fitcheck_onboarding_seen');
+  });
+
+  const handleCloseOnboarding = () => {
+    localStorage.setItem('fitcheck_onboarding_seen', 'true');
+    setShowOnboarding(false);
+  };
 
   // Filters hook
   const { activeFilter, applyFilter, getFilterStyle } = useFilters();
@@ -381,6 +392,9 @@ function App() {
 
   return (
     <div className="min-h-screen transition-colors duration-300 bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans pb-20">
+      {/* Onboarding Modal - First Visit */}
+      <OnboardingModal isOpen={showOnboarding} onClose={handleCloseOnboarding} />
+
       {/* Header */}
       <header className="p-4 flex justify-between items-center border-b border-gray-800/50 bg-[var(--bg-primary)]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-2" onClick={() => setCurrentView('home')}>

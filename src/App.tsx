@@ -6,6 +6,7 @@ import { encodeFunctionData } from 'viem';
 import { Attribution } from 'ox/erc8021';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
+import BottomNav from './components/BottomNav';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import FilterControls from './components/FilterControls';
 import { useFilters } from './hooks/useFilters';
@@ -340,11 +341,21 @@ function App() {
   };
 
   if (currentView === 'profile') {
-    return <Profile onBack={() => setCurrentView('home')} />;
+    return (
+      <>
+        <Profile onBack={() => setCurrentView('home')} />
+        <BottomNav currentView={currentView} onNavigate={setCurrentView} />
+      </>
+    );
   }
 
   if (currentView === 'how-to') {
-    return <HowToUse onBack={() => setCurrentView('home')} />;
+    return (
+      <>
+        <HowToUse onBack={() => setCurrentView('home')} />
+        <BottomNav currentView={currentView} onNavigate={setCurrentView} />
+      </>
+    );
   }
 
   return (
@@ -528,6 +539,9 @@ function App() {
           )}
         </div>
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNav currentView={currentView} onNavigate={setCurrentView} />
     </div>
   );
 }

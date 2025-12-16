@@ -342,7 +342,19 @@ function App() {
       const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck`;
       const fullShareText = `${shareText}\n\n📸 ${imageUrl}`;
 
-      // Check if native share is available
+      // Try Farcaster composeCast first (works inside Frame/Warpcast)
+      try {
+        const context = await sdk.context;
+        if (context) {
+          // We're in a Frame - use Farcaster SDK to compose cast
+          await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullShareText)}`);
+          return;
+        }
+      } catch {
+        // Not in Frame context, continue to native share
+      }
+
+      // Check if native share is available (for regular browsers)
       if (navigator.share) {
         // First, try sharing with file (best experience)
         if (navigator.canShare) {
@@ -362,7 +374,7 @@ function App() {
 
       // No native share available - copy to clipboard
       await navigator.clipboard.writeText(fullShareText);
-      alert(`Copied to clipboard!\n\nImage URL: ${imageUrl}`);
+      alert(`Copied to clipboard!\n\n📸 Image: ${imageUrl}`);
 
     } catch (err: unknown) {
       // User cancelled share or error occurred

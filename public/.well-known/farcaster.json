@@ -9,6 +9,7 @@
         "name": "Base Fit Check Studio",
         "subtitle": "Rate your outfit and mint on Base",
         "description": "Upload your fit check photo, get a style score from 0-100, and immortalize your look by minting it as an NFT on the Base blockchain.",
+        "primaryCategory": "social",
         "iconUrl": "https://check-fit-two.vercel.app/icon.png",
         "homeUrl": "https://check-fit-two.vercel.app",
         "imageUrl": "https://check-fit-two.vercel.app/icon.png",

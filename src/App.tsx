@@ -61,15 +61,36 @@ function App() {
   // Filters hook
   const { activeFilter, applyFilter, getFilterStyle } = useFilters();
 
+  // Auto-connect wallet in Frame context
   useEffect(() => {
-    const load = async () => {
-      sdk.actions.ready();
+    const initializeFrame = async () => {
+      try {
+        // Tell the host app we're ready
+        sdk.actions.ready();
+
+        // Check if we're in a frame context
+        const context = await sdk.context;
+
+        if (context && !isConnected) {
+          // Auto sign-in if in frame context
+          try {
+            await sdk.actions.signIn({
+              nonce: crypto.randomUUID(),
+            });
+          } catch (signInError) {
+            console.log('Auto sign-in not available or user declined:', signInError);
+          }
+        }
+      } catch (err) {
+        console.log('Not in frame context:', err);
+      }
     };
+
     if (sdk && !isSDKLoaded) {
       setIsSDKLoaded(true);
-      load();
+      initializeFrame();
     }
-  }, [isSDKLoaded]);
+  }, [isSDKLoaded, isConnected]);
 
   useEffect(() => {
     if (isDarkMode) {

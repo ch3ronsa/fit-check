@@ -15,6 +15,7 @@ import { useUserIdentity } from './hooks/useUserIdentity';
 import Profile from './pages/Profile';
 import HowToUse from './pages/HowToUse';
 import { playSuccessSound } from './lib/utils';
+import { updateLastActivity, shouldSendStreakReminder, showBrowserNotification, requestBrowserNotificationPermission } from './lib/notifications';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from './constants';
 import sdk from '@farcaster/frame-sdk';
 
@@ -111,6 +112,22 @@ function App() {
     }
   }, [isDarkMode]);
 
+  // Check for streak reminder on app load
+  useEffect(() => {
+    const checkStreakReminder = async () => {
+      // Request notification permission if not already granted
+      await requestBrowserNotificationPermission();
+
+      // Check if user should be reminded about streak
+      if (shouldSendStreakReminder()) {
+        showBrowserNotification('streak_reminder');
+        localStorage.setItem('fitcheck_last_streak_reminder', Date.now().toString());
+      }
+    };
+
+    checkStreakReminder();
+  }, []);
+
   const handlePhotoUpload = (file: File) => {
     setPhoto(file);
     setShowHype(false);
@@ -126,6 +143,8 @@ function App() {
   const handleHypeComplete = useCallback((score: number, message: string) => {
     setFinalScore(score);
     setFinalMessage(message);
+    // Update activity for streak tracking
+    updateLastActivity();
   }, []);
 
   const generateImageBlob = async (): Promise<Blob | null> => {
@@ -363,6 +382,7 @@ function App() {
       await saveToHistory();
 
       playSuccessSound(); // Play victory sound! 🎵
+      showBrowserNotification('mint_success'); // Send notification
       alert(`Successfully Minted on Base! 🔵\nResult: ${JSON.stringify(result)}`);
     } catch (error) {
       console.error("Mint failed", error);

@@ -324,45 +324,52 @@ function App() {
 
       if (!imageBlob) {
         alert('Could not generate image. Please try again.');
+        setIsUploading(false);
         return;
       }
 
       // Upload to IPFS
-      const uploadResult = await uploadToIPFS(imageBlob, `fit-check-${Date.now()}.png`);
-
       let imageUrl = 'https://check-fit-two.vercel.app';
-      if (uploadResult.success && uploadResult.url) {
-        imageUrl = uploadResult.url;
+      try {
+        const uploadResult = await uploadToIPFS(imageBlob, `fit-check-${Date.now()}.png`);
+        if (uploadResult.success && uploadResult.url) {
+          imageUrl = uploadResult.url;
+        }
+      } catch (uploadErr) {
+        console.log('IPFS upload failed, using fallback URL:', uploadErr);
       }
 
       const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck`;
       const fullShareText = `${shareText}\n\n📸 ${imageUrl}`;
 
-      // Try native share with image file
-      if (navigator.share && navigator.canShare) {
-        const file = new File([imageBlob], 'fit-check.png', { type: 'image/png' });
-        const shareData = {
-          text: fullShareText,
-          files: [file],
-        };
+      // Check if native share is available
+      if (navigator.share) {
+        // First, try sharing with file (best experience)
+        if (navigator.canShare) {
+          const file = new File([imageBlob], 'fit-check.png', { type: 'image/png' });
+          const shareDataWithFile = { text: fullShareText, files: [file] };
 
-        if (navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-          return;
+          if (navigator.canShare(shareDataWithFile)) {
+            await navigator.share(shareDataWithFile);
+            return;
+          }
         }
 
-        // Fallback: share text only with image URL
-        await navigator.share({
-          title: 'Base Fit Check',
-          text: fullShareText,
-        });
-      } else {
-        // Desktop: copy text with image URL
-        await navigator.clipboard.writeText(fullShareText);
-        alert(`Copied to clipboard!\n\nImage URL: ${imageUrl}`);
+        // Fallback: share text only (works on most mobile browsers)
+        await navigator.share({ text: fullShareText });
+        return;
       }
-    } catch (err) {
-      console.log('Share cancelled or failed:', err);
+
+      // No native share available - copy to clipboard
+      await navigator.clipboard.writeText(fullShareText);
+      alert(`Copied to clipboard!\n\nImage URL: ${imageUrl}`);
+
+    } catch (err: unknown) {
+      // User cancelled share or error occurred
+      const error = err as Error;
+      if (error.name !== 'AbortError') {
+        console.log('Share failed:', err);
+      }
     } finally {
       setIsUploading(false);
     }

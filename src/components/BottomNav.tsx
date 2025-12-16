@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, User, HelpCircle, Camera } from 'lucide-react';
+import { User, HelpCircle, Camera } from 'lucide-react';
 
 interface BottomNavProps {
     currentView: 'home' | 'profile' | 'how-to';

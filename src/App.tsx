@@ -370,9 +370,24 @@ function App() {
     setIsMinting(true);
 
     try {
-      // 1. Upload image to IPFS (Simulation for now, using a placeholder URI)
-      // In a real app, we would upload the blob to Pinata/IPFS here.
-      const tokenURI = "ipfs://bafkreic653o454654654654";
+      // 1. Generate and upload image to IPFS first
+      const imageBlob = await generateImageBlob();
+      if (!imageBlob) {
+        alert("Could not generate image. Please try again.");
+        setIsMinting(false);
+        return;
+      }
+
+      // Upload to IPFS
+      let tokenURI = "ipfs://placeholder";
+      try {
+        const uploadResult = await uploadToIPFS(imageBlob, `fit-nft-${Date.now()}.png`);
+        if (uploadResult.success && uploadResult.ipfsHash) {
+          tokenURI = `ipfs://${uploadResult.ipfsHash}`;
+        }
+      } catch (uploadErr) {
+        console.log('IPFS upload failed:', uploadErr);
+      }
 
       // 2. Encode the safeMint function call
       const mintCalldata = encodeFunctionData({
@@ -382,7 +397,7 @@ function App() {
       });
 
       // 3. Send transaction with Builder Code attribution
-      const result = await sendCalls({
+      await sendCalls({
         calls: [
           {
             to: CONTRACT_ADDRESS,
@@ -394,17 +409,20 @@ function App() {
         },
       });
 
-      console.log("Transaction Result:", result);
-
-      // 4. Save to Local History
+      // 4. If we reach here, TX was submitted successfully - save to history
       await saveToHistory();
-
-      playSuccessSound(); // Play victory sound! 🎵
-      showBrowserNotification('mint_success'); // Send notification
-      alert(`Successfully Minted on Base! 🔵\nResult: ${JSON.stringify(result)}`);
-    } catch (error) {
+      playSuccessSound();
+      showBrowserNotification('mint_success');
+      alert(`Successfully Minted on Base! 🔵\nTransaction submitted!`);
+    } catch (error: unknown) {
       console.error("Mint failed", error);
-      alert("Minting failed. Please try again.");
+      const err = error as Error;
+      // Don't show alert if user rejected the transaction
+      if (err.message?.includes('rejected') || err.message?.includes('denied')) {
+        console.log('User rejected transaction');
+      } else {
+        alert("Minting failed. Please try again.");
+      }
     } finally {
       setIsMinting(false);
     }

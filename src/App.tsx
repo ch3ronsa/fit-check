@@ -512,7 +512,7 @@ function App() {
               {identity?.name && (
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700">
                   <div className="flex items-center gap-2">
-                    <UserIcon size={20} className="text-base-blue" />
+                    <span className="text-base-blue text-lg">👤</span>
                     <div>
                       <p className="font-bold text-sm text-white">Signed by {identity.displayName}</p>
                       <p className="text-xs text-gray-400">Add your Basename to the photo</p>

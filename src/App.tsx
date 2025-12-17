@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
-import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database, HelpCircle } from 'lucide-react';
+import { Download, Share2, Sparkles, Sun, Moon, Database } from 'lucide-react';
 import { useAccount, useWriteContract } from 'wagmi';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
@@ -450,44 +450,17 @@ function App() {
 
       {/* Header */}
       <header className="p-4 flex justify-between items-center border-b border-gray-800/50 bg-[var(--bg-primary)]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex items-center gap-2" onClick={() => setCurrentView('home')}>
-          <div className="w-8 h-8 bg-base-blue rounded-full flex items-center justify-center animate-pulse-fast cursor-pointer">
-            <span className="font-bold text-white">B</span>
-          </div>
-          <h1 className="font-display font-bold text-xl tracking-tighter cursor-pointer">FIT CHECK <span className="text-base-blue">STUDIO</span></h1>
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCurrentView('home')}>
+          <img src="/icon.png" alt="Fit Check" className="w-8 h-8 rounded-lg" />
+          <h1 className="font-display font-bold text-xl tracking-tighter">FIT CHECK <span className="text-base-blue">STUDIO</span></h1>
         </div>
         <div className="flex items-center gap-2">
-          {isConnected && (
-            <button
-              onClick={() => setCurrentView('profile')}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-            >
-              <UserIcon size={20} className="text-base-blue" />
-            </button>
-          )}
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
           >
             {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-600" />}
           </button>
-          <button
-            onClick={() => setCurrentView('how-to')}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-            title="How to Use"
-          >
-            <HelpCircle size={20} className="text-gray-500 hover:text-base-blue transition-colors" />
-          </button>
-
-          {/* Identity Display (Mobile/Desktop) */}
-          {isConnected && identity?.displayName && (
-            <div className="hidden sm:flex flex-col items-end mr-2 ml-2">
-              <span className="text-xs font-bold text-base-blue">{identity.displayName}</span>
-              <span className="text-[10px] text-gray-400">
-                {identity.source === 'basename' ? 'Verified Base ID' : (identity.source === 'farcaster' ? 'Farcaster Connected' : 'Wallet Connected')}
-              </span>
-            </div>
-          )}
           <ConnectButton showBalance={false} chainStatus="icon" accountStatus="avatar" />
         </div>
       </header>

@@ -461,7 +461,67 @@ function App() {
           >
             {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-600" />}
           </button>
-          <ConnectButton showBalance={false} chainStatus="icon" accountStatus="avatar" />
+
+          {/* Custom Connect Button with Identity */}
+          <ConnectButton.Custom>
+            {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
+              const ready = mounted;
+              const connected = ready && account && chain;
+
+              return (
+                <div
+                  {...(!ready && {
+                    'aria-hidden': true,
+                    style: {
+                      opacity: 0,
+                      pointerEvents: 'none',
+                      userSelect: 'none',
+                    },
+                  })}
+                >
+                  {(() => {
+                    if (!connected) {
+                      return (
+                        <button
+                          onClick={openConnectModal}
+                          className="bg-base-blue hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-colors"
+                        >
+                          Connect
+                        </button>
+                      );
+                    }
+
+                    if (chain.unsupported) {
+                      return (
+                        <button
+                          onClick={openChainModal}
+                          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-bold text-sm transition-colors"
+                        >
+                          Wrong Network
+                        </button>
+                      );
+                    }
+
+                    return (
+                      <button
+                        onClick={openAccountModal}
+                        className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-xl transition-colors"
+                      >
+                        {account.ensAvatar ? (
+                          <img src={account.ensAvatar} alt="" className="w-6 h-6 rounded-full" />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-base-blue to-purple-500" />
+                        )}
+                        <span className="font-bold text-sm text-white">
+                          {identity?.displayName || account.displayName}
+                        </span>
+                      </button>
+                    );
+                  })()}
+                </div>
+              );
+            }}
+          </ConnectButton.Custom>
         </div>
       </header>
 

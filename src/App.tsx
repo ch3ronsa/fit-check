@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database, HelpCircle } from 'lucide-react';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { Attribution } from 'ox/erc8021';
+import { useAccount, useWriteContract } from 'wagmi';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import BottomNav from './components/BottomNav';
@@ -360,8 +359,7 @@ function App() {
   // Builder Code for Base attribution (will be used when Builder Code supported in writeContract)
   // const BUILDER_CODE = "bc_t62valcb";
 
-  const { writeContractAsync, data: txHash, isPending: isWritePending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
+  const { writeContractAsync } = useWriteContract();
 
   const handleMint = async () => {
     if (!isConnected || !address) {

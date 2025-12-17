@@ -114,11 +114,15 @@ const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload,
                 {/* Overlays (Hype Score, etc) */}
                 {children}
 
-                {/* Upload Placeholder */}
+                {/* Upload Placeholder - Clickable */}
                 {!image && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center z-0 text-base-blue">
+                    <div
+                        className="absolute inset-0 flex flex-col items-center justify-center z-0 text-base-blue cursor-pointer hover:text-blue-400 transition-colors"
+                        onClick={() => fileInputRef.current?.click()}
+                    >
                         <Upload className="w-12 h-12 mb-2 animate-bounce" />
                         <p className="font-display font-bold">Upload Your Fit</p>
+                        <p className="text-xs text-gray-400 mt-1">Tap to select photo</p>
                     </div>
                 )}
             </div>

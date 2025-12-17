@@ -79,3 +79,20 @@ export const getShareableUrl = (ipfsHash: string): string => {
     // Option 2: If you want a custom domain later:
     // return `https://check-fit-two.vercel.app/fit/${ipfsHash}`;
 };
+
+/**
+ * Shorten a URL using TinyURL API
+ */
+export const shortenUrl = async (url: string): Promise<string> => {
+    try {
+        const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`);
+        if (response.ok) {
+            const shortUrl = await response.text();
+            return shortUrl;
+        }
+    } catch (error) {
+        console.error('URL shortening failed:', error);
+    }
+    // Return original URL if shortening fails
+    return url;
+};

@@ -15,7 +15,7 @@ import Profile from './pages/Profile';
 import HowToUse from './pages/HowToUse';
 import { playSuccessSound } from './lib/utils';
 import { updateLastActivity, shouldSendStreakReminder, showBrowserNotification, requestBrowserNotificationPermission } from './lib/notifications';
-import { uploadToIPFS } from './lib/pinata';
+import { uploadToIPFS, shortenUrl } from './lib/pinata';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from './constants';
 import sdk from '@farcaster/frame-sdk';
 
@@ -344,8 +344,11 @@ function App() {
 
       const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck`;
 
+      // Shorten the URL for cleaner sharing
+      const shortUrl = await shortenUrl(imageUrl);
+
       // Set share data and open modal
-      setShareData({ shareText, imageUrl });
+      setShareData({ shareText, imageUrl: shortUrl });
       setShowShareModal(true);
 
     } catch (err) {

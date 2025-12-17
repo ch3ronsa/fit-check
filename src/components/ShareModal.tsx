@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Check } from 'lucide-react';
+import { X, Copy, Check, ExternalLink } from 'lucide-react';
+import sdk from '@farcaster/frame-sdk';
 
 interface ShareModalProps {
     isOpen: boolean;
@@ -11,47 +12,11 @@ interface ShareModalProps {
 
 const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareText, imageUrl }) => {
     const [copied, setCopied] = React.useState(false);
+    const [isSharing, setIsSharing] = React.useState(false);
 
-    const fullText = `${shareText}\n\n📸 ${imageUrl}`;
-
-    const platforms = [
-        {
-            name: 'X / Twitter',
-            icon: '𝕏',
-            color: 'bg-black hover:bg-gray-800',
-            url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(fullText)}`,
-        },
-        {
-            name: 'WhatsApp',
-            icon: '💬',
-            color: 'bg-[#25D366] hover:bg-[#20bd5a]',
-            url: `https://wa.me/?text=${encodeURIComponent(fullText)}`,
-        },
-        {
-            name: 'Telegram',
-            icon: '✈️',
-            color: 'bg-[#0088cc] hover:bg-[#0077b5]',
-            url: `https://t.me/share/url?url=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}`,
-        },
-        {
-            name: 'Warpcast',
-            icon: '🟣',
-            color: 'bg-[#855DCD] hover:bg-[#7C52C7]',
-            url: `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}`,
-        },
-        {
-            name: 'Facebook',
-            icon: '📘',
-            color: 'bg-[#1877F2] hover:bg-[#166FE5]',
-            url: `https://www.facebook.com/sharer/sharer.php?quote=${encodeURIComponent(fullText)}`,
-        },
-        {
-            name: 'Reddit',
-            icon: '🤖',
-            color: 'bg-[#FF4500] hover:bg-[#E03D00]',
-            url: `https://reddit.com/submit?url=${encodeURIComponent(imageUrl)}&title=${encodeURIComponent(shareText)}`,
-        },
-    ];
+    // App URL that includes embed metadata
+    const appUrl = 'https://check-fit-two.vercel.app';
+    const fullText = `${shareText}\n\n📸 ${imageUrl}\n\n${appUrl}`;
 
     const handleCopy = async () => {
         try {
@@ -63,8 +28,27 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareText, ima
         }
     };
 
-    const handleShare = (url: string) => {
-        window.open(url, '_blank', 'width=600,height=400');
+    // Share via Farcaster SDK (opens compose cast with embed)
+    const handleFarcasterShare = async () => {
+        setIsSharing(true);
+        try {
+            // Check if we're in a Frame context
+            const context = await sdk.context;
+            if (context) {
+                // Use SDK to open compose with the app URL (will show embed)
+                await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(appUrl)}`);
+            } else {
+                // Not in frame, open Warpcast directly
+                window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(imageUrl)}`, '_blank');
+            }
+            onClose();
+        } catch (err) {
+            console.log('Farcaster share failed:', err);
+            // Fallback to opening Warpcast in new tab
+            window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(imageUrl)}`, '_blank');
+        } finally {
+            setIsSharing(false);
+        }
     };
 
     return (
@@ -97,23 +81,28 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareText, ima
                         </div>
 
                         {/* Image Preview */}
-                        <div className="bg-gray-900/50 rounded-xl p-3 mb-4 text-center">
-                            <p className="text-sm text-gray-400 truncate">📸 {imageUrl}</p>
+                        <div className="bg-gray-900/50 rounded-xl p-3 mb-6 text-center">
+                            <p className="text-xs text-gray-400 break-all">📸 {imageUrl}</p>
                         </div>
 
-                        {/* Platform Buttons */}
-                        <div className="grid grid-cols-3 gap-3 mb-4">
-                            {platforms.map((platform) => (
-                                <button
-                                    key={platform.name}
-                                    onClick={() => handleShare(platform.url)}
-                                    className={`${platform.color} text-white py-4 rounded-xl font-bold flex flex-col items-center justify-center gap-1 transition-all`}
-                                >
-                                    <span className="text-2xl">{platform.icon}</span>
-                                    <span className="text-xs">{platform.name}</span>
-                                </button>
-                            ))}
-                        </div>
+                        {/* Share to Feed Button (Primary) */}
+                        <button
+                            onClick={handleFarcasterShare}
+                            disabled={isSharing}
+                            className="w-full bg-[#855DCD] hover:bg-[#7C52C7] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-500/20 mb-3 disabled:opacity-50"
+                        >
+                            {isSharing ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    Opening...
+                                </>
+                            ) : (
+                                <>
+                                    <ExternalLink size={20} />
+                                    Share to Feed
+                                </>
+                            )}
+                        </button>
 
                         {/* Copy Button */}
                         <button
@@ -132,6 +121,11 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareText, ima
                                 </>
                             )}
                         </button>
+
+                        {/* Info text */}
+                        <p className="text-xs text-gray-500 text-center mt-4">
+                            Your fit embed will appear in the post
+                        </p>
                     </motion.div>
                 </motion.div>
             )}

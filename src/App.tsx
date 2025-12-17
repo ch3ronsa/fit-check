@@ -342,18 +342,29 @@ function App() {
         console.log('IPFS upload failed, using fallback URL:', uploadErr);
       }
 
-      const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck`;
-
       // Shorten the URL for cleaner sharing
       const shortUrl = await shortenUrl(imageUrl);
 
-      // Set share data and open modal
-      setShareData({ shareText, imageUrl: shortUrl });
-      setShowShareModal(true);
+      const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck\n\n📸 ${shortUrl}`;
+
+      // Open Warpcast compose directly
+      const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(shortUrl)}`;
+
+      // Check if we're in a Frame context
+      try {
+        const context = await sdk.context;
+        if (context) {
+          await sdk.actions.openUrl(warpcastUrl);
+        } else {
+          window.open(warpcastUrl, '_blank');
+        }
+      } catch {
+        window.open(warpcastUrl, '_blank');
+      }
 
     } catch (err) {
-      console.log('Share preparation failed:', err);
-      alert('Could not prepare share. Please try again.');
+      console.log('Share failed:', err);
+      alert('Could not share. Please try again.');
     } finally {
       setIsUploading(false);
     }

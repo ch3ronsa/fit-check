@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import { Download, Share2, Sparkles, Sun, Moon, User as UserIcon, Database, HelpCircle } from 'lucide-react';
-import { useAccount, useSendCalls } from 'wagmi';
-import { encodeFunctionData } from 'viem';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Attribution } from 'ox/erc8021';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
@@ -358,12 +357,14 @@ function App() {
     }
   };
 
-  // Builder Code for Base attribution
-  const BUILDER_CODE = "bc_t62valcb";
-  const { sendCalls } = useSendCalls();
+  // Builder Code for Base attribution (will be used when Builder Code supported in writeContract)
+  // const BUILDER_CODE = "bc_t62valcb";
+
+  const { writeContractAsync, data: txHash, isPending: isWritePending } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
   const handleMint = async () => {
-    if (!isConnected) {
+    if (!isConnected || !address) {
       alert("Please connect your wallet first!");
       return;
     }
@@ -389,39 +390,29 @@ function App() {
         console.log('IPFS upload failed:', uploadErr);
       }
 
-      // 2. Encode the safeMint function call
-      const mintCalldata = encodeFunctionData({
+      // 2. Send transaction using writeContractAsync
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESS as `0x${string}`,
         abi: CONTRACT_ABI,
         functionName: 'safeMint',
-        args: [address!, tokenURI],
+        args: [address, tokenURI],
       });
 
-      // 3. Send transaction with Builder Code attribution
-      await sendCalls({
-        calls: [
-          {
-            to: CONTRACT_ADDRESS,
-            data: mintCalldata,
-          },
-        ],
-        capabilities: {
-          dataSuffix: Attribution.toDataSuffix({ codes: [BUILDER_CODE] }),
-        },
-      });
+      console.log('Transaction hash:', hash);
 
-      // 4. If we reach here, TX was submitted successfully - save to history
+      // 3. If we reach here, TX was submitted successfully - save to history
       await saveToHistory();
       playSuccessSound();
       showBrowserNotification('mint_success');
-      alert(`Successfully Minted on Base! 🔵\nTransaction submitted!`);
+      alert(`Successfully Minted on Base! 🔵\nTX: ${hash}`);
     } catch (error: unknown) {
       console.error("Mint failed", error);
       const err = error as Error;
       // Don't show alert if user rejected the transaction
-      if (err.message?.includes('rejected') || err.message?.includes('denied')) {
+      if (err.message?.includes('rejected') || err.message?.includes('denied') || err.message?.includes('User denied')) {
         console.log('User rejected transaction');
       } else {
-        alert("Minting failed. Please try again.");
+        alert(`Minting failed: ${err.message || 'Unknown error'}`);
       }
     } finally {
       setIsMinting(false);

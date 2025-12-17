@@ -16,7 +16,9 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareText, ima
 
     // App URL that includes embed metadata
     const appUrl = 'https://check-fit-two.vercel.app';
-    const fullText = `${shareText}\n\n📸 ${imageUrl}\n\n${appUrl}`;
+    // Full share text includes the image URL
+    const shareTextWithLink = `${shareText}\n\n📸 ${imageUrl}`;
+    const fullText = `${shareTextWithLink}\n\n${appUrl}`;
 
     const handleCopy = async () => {
         try {
@@ -32,20 +34,23 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareText, ima
     const handleFarcasterShare = async () => {
         setIsSharing(true);
         try {
+            // Share text includes the image URL, and image is added as embed
+            const shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareTextWithLink)}&embeds[]=${encodeURIComponent(imageUrl)}`;
+
             // Check if we're in a Frame context
             const context = await sdk.context;
             if (context) {
-                // Use SDK to open compose with the app URL (will show embed)
-                await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(appUrl)}`);
+                // Use SDK to open compose
+                await sdk.actions.openUrl(shareUrl);
             } else {
                 // Not in frame, open Warpcast directly
-                window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(imageUrl)}`, '_blank');
+                window.open(shareUrl, '_blank');
             }
             onClose();
         } catch (err) {
             console.log('Farcaster share failed:', err);
             // Fallback to opening Warpcast in new tab
-            window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(imageUrl)}`, '_blank');
+            window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareTextWithLink)}&embeds[]=${encodeURIComponent(imageUrl)}`, '_blank');
         } finally {
             setIsSharing(false);
         }

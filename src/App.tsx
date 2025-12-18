@@ -337,13 +337,13 @@ function App() {
         console.log('IPFS upload failed, using fallback URL:', uploadErr);
       }
 
-      // Shorten the URL for cleaner sharing
+      // Shorten the URL for text display (but use original for embed/preview)
       const shortUrl = await shortenUrl(imageUrl);
 
       const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck\n\n📸 ${shortUrl}`;
 
-      // Open Warpcast compose directly
-      const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(shortUrl)}`;
+      // Open Warpcast compose directly - use original imageUrl for embed (for preview)
+      const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(imageUrl)}`;
 
       // Check if we're in a Frame context
       try {

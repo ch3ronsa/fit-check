@@ -6,7 +6,6 @@ import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
 import BottomNav from './components/BottomNav';
 import OnboardingModal from './components/OnboardingModal';
-import ShareModal from './components/ShareModal';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import FilterControls from './components/FilterControls';
 import { useFilters } from './hooks/useFilters';
@@ -59,10 +58,6 @@ function App() {
   const [isMinting, setIsMinting] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [showIdentity, setShowIdentity] = useState(false); // Toggle state for identity
-
-  // Share modal state
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [shareData, setShareData] = useState({ shareText: '', imageUrl: '' });
 
   // Onboarding modal - show on first visit
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -453,14 +448,6 @@ function App() {
     <div className="min-h-screen transition-colors duration-300 bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans pb-20">
       {/* Onboarding Modal - First Visit */}
       <OnboardingModal isOpen={showOnboarding} onClose={handleCloseOnboarding} />
-
-      {/* Share Modal */}
-      <ShareModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        shareText={shareData.shareText}
-        imageUrl={shareData.imageUrl}
-      />
 
       {/* Header */}
       <header className="p-4 flex justify-between items-center border-b border-gray-800/50 bg-[var(--bg-primary)]/80 backdrop-blur-md sticky top-0 z-50">

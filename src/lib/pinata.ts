@@ -1,7 +1,7 @@
 // Pinata IPFS Upload Service
 
 const PINATA_JWT = import.meta.env.VITE_PINATA_JWT;
-const PINATA_GATEWAY = 'https://gateway.pinata.cloud/ipfs';
+const PINATA_GATEWAY = 'https://blush-puny-sawfish-198.mypinata.cloud/ipfs';
 
 export interface UploadResult {
     success: boolean;

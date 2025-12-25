@@ -17,6 +17,7 @@ import { updateLastActivity, shouldSendStreakReminder, showBrowserNotification, 
 import { uploadToIPFS, shortenUrl } from './lib/pinata';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from './constants';
 import sdk from '@farcaster/frame-sdk';
+import { useTopContacts, FarcasterContact } from './hooks/useTopContacts';
 
 const FRAMES = [
   '/frames/frame1.png',
@@ -58,6 +59,7 @@ function App() {
   const [isMinting, setIsMinting] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [showIdentity, setShowIdentity] = useState(false); // Toggle state for identity
+  const [selectedContacts, setSelectedContacts] = useState<FarcasterContact[]>([]); // Selected contacts to tag
 
   // Onboarding modal - show on first visit
   const [showOnboarding, setShowOnboarding] = useState(() => {
@@ -71,6 +73,9 @@ function App() {
 
   // Filters hook
   const { activeFilter, applyFilter, getFilterStyle } = useFilters();
+
+  // Top contacts for tagging
+  const { contacts: topContacts } = useTopContacts();
 
   // Auto-connect wallet in Frame context
   useEffect(() => {
@@ -340,7 +345,12 @@ function App() {
       // Shorten the URL for text display (but use original for embed/preview)
       const shortUrl = await shortenUrl(imageUrl);
 
-      const shareText = `Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck\n\n📸 ${shortUrl}`;
+      // Build mentions string from selected contacts
+      const mentions = selectedContacts.length > 0
+        ? selectedContacts.map(c => `@${c.username}`).join(' ') + ' '
+        : '';
+
+      const shareText = `${mentions}Checking my fit on Base! 🔵 My Style Score: ${finalScore}/100. "${finalMessage}" Rate this look! 🛡️ #BaseFitCheck\n\n📸 ${shortUrl}`;
 
       // Open Warpcast compose directly - use original imageUrl for embed (for preview)
       const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(imageUrl)}`;
@@ -639,32 +649,62 @@ function App() {
                     Story
                   </button>
                 </div>
-
-                {/* Share button */}
-                <button
-                  onClick={handleShare}
-                  disabled={isUploading}
-                  className="bg-[#855DCD] hover:bg-[#7C52C7] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(133,93,205,0.4)] disabled:opacity-50"
-                >
-                  {isUploading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Share2 size={20} />
-                      Share
-                    </>
-                  )}
-                </button>
               </div>
+
+              {/* Tag Friends Section */}
+              {topContacts.length > 0 && (
+                <div className="bg-gray-800/50 rounded-xl p-3">
+                  <p className="text-xs text-gray-400 mb-2">🏷️ Tag friends (tap to select):</p>
+                  <div className="flex flex-wrap gap-2">
+                    {topContacts.map((contact) => {
+                      const isSelected = selectedContacts.some(c => c.fid === contact.fid);
+                      return (
+                        <button
+                          key={contact.fid}
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedContacts(prev => prev.filter(c => c.fid !== contact.fid));
+                            } else {
+                              setSelectedContacts(prev => [...prev, contact]);
+                            }
+                          }}
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${isSelected
+                            ? 'bg-base-blue text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            }`}
+                        >
+                          @{contact.username}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Share button */}
+              <button
+                onClick={handleShare}
+                disabled={isUploading}
+                className="w-full bg-[#855DCD] hover:bg-[#7C52C7] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(133,93,205,0.4)] disabled:opacity-50"
+              >
+                {isUploading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Share2 size={20} />
+                    Share{selectedContacts.length > 0 ? ` (with ${selectedContacts.length} tags)` : ''}
+                  </>
+                )}
+              </button>
 
               {/* Mint Button */}
               <button
                 onClick={handleMint}
                 disabled={isMinting}
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01] animate-in fade-in slide-in-from-bottom-5"
+                className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
               >
                 {isMinting ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Database size={20} />}
                 {isMinting ? 'Minting on Base...' : 'Save On-Chain (Mint NFT)'}

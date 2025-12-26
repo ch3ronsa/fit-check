@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, Sparkles, Share2, Database, ArrowLeft } from 'lucide-react';
+import { Upload, Sparkles, Share2, Database, ArrowLeft, Palette, Users, User } from 'lucide-react';
 
 interface HowToUseProps {
     onBack: () => void;
@@ -9,23 +9,38 @@ const HowToUse: React.FC<HowToUseProps> = ({ onBack }) => {
     const steps = [
         {
             icon: <Upload className="w-8 h-8 text-base-blue" />,
-            title: "1. Upload & Frame",
-            description: "Upload your best fit check photo. Use the touch controls to pan, zoom, and rotate your image to fit perfectly within one of our exclusive frames."
+            title: "1. Choose Frame & Filter",
+            description: "Browse 25+ exclusive digital frames and 5 professional filters (B&W, Vintage, Contrast, Cyber). Select your style before uploading."
+        },
+        {
+            icon: <Palette className="w-8 h-8 text-pink-400" />,
+            title: "2. Upload Your Fit",
+            description: "Tap the upload area to select your best fit check photo. Use touch controls to pan, zoom, and position your image perfectly within the frame."
         },
         {
             icon: <Sparkles className="w-8 h-8 text-yellow-400" />,
-            title: "2. Get Rated",
-            description: "Click 'Rate My Photo' to let our Hype Engine analyze your drip. You'll get a unique Style Score (0-100) and a hype comment."
+            title: "3. Get Your Score",
+            description: "Click 'RATE MY PHOTO' to let our Hype Engine analyze your drip. You'll receive a Style Score (0-100) and a unique hype comment!"
+        },
+        {
+            icon: <User className="w-8 h-8 text-cyan-400" />,
+            title: "4. Add Your Identity",
+            description: "If connected, toggle to add your Basename or Farcaster name as a signature on your photo. Show the world who's got style!"
+        },
+        {
+            icon: <Users className="w-8 h-8 text-purple-400" />,
+            title: "5. Tag Friends",
+            description: "Select your top Farcaster contacts to tag when sharing. Powered by Neynar, we show the people you interact with most."
         },
         {
             icon: <Share2 className="w-8 h-8 text-purple-500" />,
-            title: "3. Share Your Look",
-            description: "Love your look? Share it with one click to any social platform. Show off your score to your followers!"
+            title: "6. Share to Warpcast",
+            description: "One-click share to Warpcast. Your fit, score, and image link are automatically composed. Let your followers rate your look!"
         },
         {
             icon: <Database className="w-8 h-8 text-green-500" />,
-            title: "4. Mint on Base",
-            description: "Immortalize your fit by minting it as an NFT on the Base blockchain. Your style history lives forever on-chain."
+            title: "7. Mint on Base",
+            description: "Immortalize your fit by minting it as an NFT on the Base blockchain. Your style history lives forever on-chain!"
         }
     ];
 
@@ -44,9 +59,9 @@ const HowToUse: React.FC<HowToUseProps> = ({ onBack }) => {
                 </div>
 
                 {/* Steps */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {steps.map((step, index) => (
-                        <div key={index} className="bg-[var(--card-bg)] p-6 rounded-2xl border border-gray-800/50 shadow-lg flex gap-4 items-start">
+                        <div key={index} className="bg-[var(--card-bg)] p-5 rounded-2xl border border-gray-800/50 shadow-lg flex gap-4 items-start">
                             <div className="p-3 bg-gray-900/50 rounded-xl shrink-0">
                                 {step.icon}
                             </div>
@@ -58,15 +73,55 @@ const HowToUse: React.FC<HowToUseProps> = ({ onBack }) => {
                     ))}
                 </div>
 
+                {/* Features */}
+                <div className="mt-8 p-5 rounded-2xl bg-gray-800/30 border border-gray-700/50">
+                    <h3 className="font-bold text-lg mb-4">✨ Features</h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="flex items-center gap-2">
+                            <span className="text-base-blue">🖼️</span>
+                            <span>25+ Frames</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-base-blue">🎨</span>
+                            <span>5 Filters</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-base-blue">📊</span>
+                            <span>Style Scores</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-base-blue">🏷️</span>
+                            <span>Friend Tagging</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-base-blue">🔗</span>
+                            <span>NFT Minting</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-base-blue">🟣</span>
+                            <span>Warpcast Native</span>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Pro Tip */}
-                <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-base-blue/10 to-purple-500/10 border border-base-blue/20">
+                <div className="mt-6 p-5 rounded-2xl bg-gradient-to-r from-base-blue/10 to-purple-500/10 border border-base-blue/20">
                     <h3 className="font-bold text-base-blue mb-2 flex items-center gap-2">
                         <Sparkles size={16} />
-                        Pro Tip
+                        Pro Tips
                     </h3>
-                    <p className="text-sm text-gray-300">
-                        Maintain a daily streak to unlock special celebration effects! Check your profile to see your history and stats.
-                    </p>
+                    <ul className="text-sm text-gray-300 space-y-2">
+                        <li>• Maintain a daily streak for special celebration effects!</li>
+                        <li>• Check your Profile to see your mint history and stats</li>
+                        <li>• Tag friends to boost engagement on your posts</li>
+                        <li>• Try different frame + filter combos for unique looks</li>
+                    </ul>
+                </div>
+
+                {/* Social */}
+                <div className="mt-6 text-center text-sm text-gray-500">
+                    <p>Built with ❤️ for the Base ecosystem</p>
+                    <p className="mt-1">Powered by Farcaster Frame v2</p>
                 </div>
             </div>
         </div>

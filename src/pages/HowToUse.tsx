@@ -9,7 +9,7 @@ const HowToUse: React.FC<HowToUseProps> = ({ onBack }) => {
     const steps = [
         {
             icon: <Upload className="w-8 h-8 text-base-blue" />,
-            title: "1. Upload Your Fit",
+            title: "1. Upload Your Photo",
             description: "Tap the upload area to select your best fit check photo. Use touch controls to pan, zoom, and position your image perfectly."
         },
         {

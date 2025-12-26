@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, Sparkles, Share2, Database, ArrowLeft, Palette, Users, User } from 'lucide-react';
+import { Upload, Sparkles, Share2, Database, ArrowLeft, Palette, Users, User, Image } from 'lucide-react';
 
 interface HowToUseProps {
     onBack: () => void;
@@ -9,37 +9,42 @@ const HowToUse: React.FC<HowToUseProps> = ({ onBack }) => {
     const steps = [
         {
             icon: <Upload className="w-8 h-8 text-base-blue" />,
-            title: "1. Choose Frame & Filter",
-            description: "Browse 25+ exclusive digital frames and 5 professional filters (B&W, Vintage, Contrast, Cyber). Select your style before uploading."
+            title: "1. Upload Your Fit",
+            description: "Tap the upload area to select your best fit check photo. Use touch controls to pan, zoom, and position your image perfectly."
         },
         {
-            icon: <Palette className="w-8 h-8 text-pink-400" />,
-            title: "2. Upload Your Fit",
-            description: "Tap the upload area to select your best fit check photo. Use touch controls to pan, zoom, and position your image perfectly within the frame."
+            icon: <Image className="w-8 h-8 text-pink-400" />,
+            title: "2. Choose Frame",
+            description: "Browse 25+ exclusive digital frames. Each frame gives your photo a unique look - from minimalist to bold designs."
+        },
+        {
+            icon: <Palette className="w-8 h-8 text-purple-400" />,
+            title: "3. Apply Filter",
+            description: "Choose from 5 professional filters: Original, B&W, Vintage, Contrast, or Cyber. Find the perfect vibe for your fit!"
         },
         {
             icon: <Sparkles className="w-8 h-8 text-yellow-400" />,
-            title: "3. Get Your Score",
+            title: "4. Get Your Score",
             description: "Click 'RATE MY PHOTO' to let our Hype Engine analyze your drip. You'll receive a Style Score (0-100) and a unique hype comment!"
         },
         {
             icon: <User className="w-8 h-8 text-cyan-400" />,
-            title: "4. Add Your Identity",
+            title: "5. Add Your Identity",
             description: "If connected, toggle to add your Basename or Farcaster name as a signature on your photo. Show the world who's got style!"
         },
         {
-            icon: <Users className="w-8 h-8 text-purple-400" />,
-            title: "5. Tag Friends",
+            icon: <Users className="w-8 h-8 text-orange-400" />,
+            title: "6. Tag Friends",
             description: "Select your top Farcaster contacts to tag when sharing. Powered by Neynar, we show the people you interact with most."
         },
         {
             icon: <Share2 className="w-8 h-8 text-purple-500" />,
-            title: "6. Share to Warpcast",
+            title: "7. Share to Warpcast",
             description: "One-click share to Warpcast. Your fit, score, and image link are automatically composed. Let your followers rate your look!"
         },
         {
             icon: <Database className="w-8 h-8 text-green-500" />,
-            title: "7. Mint on Base",
+            title: "8. Mint on Base",
             description: "Immortalize your fit by minting it as an NFT on the Base blockchain. Your style history lives forever on-chain!"
         }
     ];

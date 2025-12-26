@@ -556,6 +556,11 @@ function App() {
           </div>
         </div>
 
+        {/* Filter Controls - Always visible */}
+        <div className="mb-6">
+          <FilterControls activeFilter={activeFilter} onFilterChange={applyFilter} />
+        </div>
+
         {/* Capture Area (Includes Editor + Message) */}
         <div className="p-4 rounded-2xl bg-[var(--card-bg)] shadow-xl transition-colors duration-300">
           {/* Main Editor Area */}
@@ -574,33 +579,28 @@ function App() {
             </FrameEditor>
           </div>
 
-          {/* Filter Controls & Identity Toggle */}
-          {photo && (
-            <div className="mt-4 space-y-4">
-              <FilterControls activeFilter={activeFilter} onFilterChange={applyFilter} />
-
-              {/* Identity Toggle */}
-              {identity?.name && (
-                <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base-blue text-lg">👤</span>
-                    <div>
-                      <p className="font-bold text-sm text-white">Signed by {identity.displayName}</p>
-                      <p className="text-xs text-gray-400">Add your Basename to the photo</p>
-                    </div>
+          {/* Identity Toggle - Only when photo uploaded */}
+          {photo && identity?.name && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl border border-gray-700">
+                <div className="flex items-center gap-2">
+                  <span className="text-base-blue text-lg">👤</span>
+                  <div>
+                    <p className="font-bold text-sm text-white">Signed by {identity.displayName}</p>
+                    <p className="text-xs text-gray-400">Add your Basename to the photo</p>
                   </div>
-                  <button
-                    onClick={() => setShowIdentity(!showIdentity)}
-                    className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${showIdentity ? 'bg-base-blue' : 'bg-gray-600'
-                      }`}
-                  >
-                    <div
-                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${showIdentity ? 'translate-x-6' : 'translate-x-0'
-                        }`}
-                    />
-                  </button>
                 </div>
-              )}
+                <button
+                  onClick={() => setShowIdentity(!showIdentity)}
+                  className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${showIdentity ? 'bg-base-blue' : 'bg-gray-600'
+                    }`}
+                >
+                  <div
+                    className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${showIdentity ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                  />
+                </button>
+              </div>
             </div>
           )}
 

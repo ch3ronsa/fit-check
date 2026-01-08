@@ -43,6 +43,11 @@ const FRAMES = [
   '/frames/frame21.png',
   '/frames/frame22.png',
   '/frames/frame23.png',
+  '/frames/frame27.png',
+  '/frames/frame28.png',
+  '/frames/frame29.png',
+  '/frames/frame30.png',
+  '/frames/frame31.png',
 ];
 
 function App() {

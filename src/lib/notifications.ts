@@ -1,4 +1,5 @@
 import sdk from '@farcaster/frame-sdk';
+import { APP_URL } from '../config';
 
 // Notification types for Fit Check Studio
 export type NotificationType = 'streak_reminder' | 'mint_success' | 'new_feature';
@@ -13,17 +14,17 @@ const NOTIFICATIONS: Record<NotificationType, NotificationPayload> = {
     streak_reminder: {
         title: "Don't break your streak! 🔥",
         body: "You haven't done a fit check today. Keep the fire alive!",
-        targetUrl: "https://check-fit-two.vercel.app",
+        targetUrl: APP_URL,
     },
     mint_success: {
         title: "NFT Minted! 🎉",
         body: "Your fit is now immortalized on Base blockchain.",
-        targetUrl: "https://check-fit-two.vercel.app",
+        targetUrl: APP_URL,
     },
     new_feature: {
         title: "New frames available! 🖼️",
         body: "Check out fresh styles to frame your fits.",
-        targetUrl: "https://check-fit-two.vercel.app",
+        targetUrl: APP_URL,
     },
 };
 
@@ -50,18 +51,15 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
         }
         return false;
     } catch (err) {
-        console.log('Notification permission not granted:', err);
+        console.warn('Notification permission not granted:', err);
         return false;
     }
 };
 
 // Send notification via Farcaster SDK
 export const sendNotification = async (type: NotificationType): Promise<void> => {
-    const payload = NOTIFICATIONS[type];
-
-    // For now, we just log - actual sending requires webhook from backend
-    // But we can trigger in-app notifications
-    console.log('Notification triggered:', payload);
+    // Actual sending requires webhook from backend
+    // NOTIFICATIONS[type] contains the payload for future webhook integration
 
     // Store last notification time to respect rate limits
     localStorage.setItem(`fitcheck_last_${type}`, Date.now().toString());

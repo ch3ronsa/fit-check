@@ -1,11 +1,9 @@
 import React from 'react';
 import { Upload, Sparkles, Share2, Database, ArrowLeft, Palette, Users, User, Image } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface HowToUseProps {
-    onBack: () => void;
-}
-
-const HowToUse: React.FC<HowToUseProps> = ({ onBack }) => {
+const HowToUse: React.FC = () => {
+    const navigate = useNavigate();
     const steps = [
         {
             icon: <Upload className="w-8 h-8 text-base-blue" />,
@@ -55,7 +53,7 @@ const HowToUse: React.FC<HowToUseProps> = ({ onBack }) => {
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
                     <button
-                        onClick={onBack}
+                        onClick={() => navigate('/')}
                         className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                     >
                         <ArrowLeft size={24} />

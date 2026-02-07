@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Share2, Flame, Calendar, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useUserIdentity } from '../hooks/useUserIdentity';
+import { parseFitDate } from '../lib/utils';
+import { APP_URL } from '../config';
 
 interface SavedFit {
     id: string;
@@ -11,11 +14,8 @@ interface SavedFit {
     message: string;
 }
 
-interface ProfileProps {
-    onBack: () => void;
-}
-
-const Profile: React.FC<ProfileProps> = ({ onBack }) => {
+const Profile: React.FC = () => {
+    const navigate = useNavigate();
     const identity = useUserIdentity();
 
     const [fits, setFits] = useState<SavedFit[]>([]);
@@ -44,13 +44,12 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
 
         // Get unique dates (YYYY-MM-DD) from history in LOCAL TIME
         const uniqueDates = Array.from(new Set(history.map(f => {
-            // Handle both old locale strings and new ISO strings
-            const d = new Date(f.date.includes('/') ? Number(f.id) : f.date);
+            const d = parseFitDate(f);
             // Use en-CA for YYYY-MM-DD format in local time
             return d.toLocaleDateString('en-CA');
         }))).sort().reverse(); // Newest first
 
-        console.log("Unique Dates (Local):", uniqueDates);
+        // uniqueDates calculated for streak
 
         if (uniqueDates.length === 0) return;
 
@@ -91,7 +90,7 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
 
     const handleShare = async (fit: SavedFit) => {
         const shareText = `Checking my fit on Base! 🔵 My Style Score: ${fit.score}/100. "${fit.message}" Rate this look! 🛡️ #BaseFitCheck`;
-        const shareUrl = 'https://check-fit-two.vercel.app';
+        const shareUrl = APP_URL;
 
         if (navigator.share) {
             try {
@@ -101,7 +100,7 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
                     url: shareUrl,
                 });
             } catch (err) {
-                console.log('Share cancelled:', err);
+                // Share cancelled by user
             }
         } else {
             try {
@@ -140,7 +139,7 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={onBack}
+                            onClick={() => navigate('/')}
                             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                         >
                             <ArrowLeft size={24} />
@@ -207,7 +206,7 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
                             <div key={fit.id} className="bg-[var(--card-bg)] rounded-2xl overflow-hidden shadow-lg border border-gray-800/20">
                                 <div className="bg-gray-900/50 p-3 border-b border-gray-800 flex justify-between items-center">
                                     <span className="font-mono font-bold text-lg text-gray-300">
-                                        {new Date(fit.date.includes('/') ? Number(fit.id) : fit.date).toLocaleDateString()}
+                                        {parseFitDate(fit).toLocaleDateString()}
                                     </span>
                                     <span className="bg-base-blue text-white text-xs font-bold px-2 py-1 rounded-full">
                                         SCORE: {fit.score}
@@ -228,13 +227,15 @@ const Profile: React.FC<ProfileProps> = ({ onBack }) => {
                     </div>
                 )}
 
-                {/* Debug Info */}
-                <div className="mt-8 p-4 bg-black/20 rounded-lg text-xs font-mono text-gray-500 text-center">
-                    <p>Debug Info:</p>
-                    <p>Total Fits: {fits.length}</p>
-                    <p>Streak: {streak}</p>
-                    <p>Last Active: {fits.length > 0 ? new Date(fits[0].date.includes('/') ? Number(fits[0].id) : fits[0].date).toLocaleString() : 'N/A'}</p>
-                </div>
+                {/* Debug Info - only in development */}
+                {import.meta.env.DEV && (
+                    <div className="mt-8 p-4 bg-black/20 rounded-lg text-xs font-mono text-gray-500 text-center">
+                        <p>Debug Info:</p>
+                        <p>Total Fits: {fits.length}</p>
+                        <p>Streak: {streak}</p>
+                        <p>Last Active: {fits.length > 0 ? parseFitDate(fits[0]).toLocaleString() : 'N/A'}</p>
+                    </div>
+                )}
             </div>
         </div>
     );

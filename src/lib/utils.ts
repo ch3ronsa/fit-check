@@ -5,6 +5,16 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
+/**
+ * Parse a SavedFit's date, handling both old locale strings and new ISO strings.
+ */
+export function parseFitDate(fit: { id: string; date: string }): Date {
+    if (fit.date.includes('/')) {
+        return new Date(Number(fit.id));
+    }
+    return new Date(fit.date);
+}
+
 export function playSuccessSound() {
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;

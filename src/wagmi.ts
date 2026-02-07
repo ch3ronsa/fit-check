@@ -8,8 +8,9 @@ import {
 } from '@rainbow-me/rainbowkit/wallets';
 import { createConfig, http } from 'wagmi';
 
-// Project ID from WalletConnect Cloud
-const projectId = '3fcc6bba6f1de962d911bb5b5c3dba68'; // Demo ID
+import { WALLETCONNECT_PROJECT_ID } from './config';
+
+const projectId = WALLETCONNECT_PROJECT_ID;
 
 const connectors = connectorsForWallets(
     [

@@ -34,7 +34,7 @@ export const useUserIdentity = () => {
     });
 
     const { data: ensAvatar } = useEnsAvatar({
-        name: ensName!,
+        name: ensName ?? undefined,
         chainId: base.id,
         query: {
             enabled: !!ensName,

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Upload, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface FrameEditorProps {
-    selectedFrame: string;
+    selectedFrame: string | null;
     onPhotoUpload: (file: File) => void;
     children?: React.ReactNode;
     filterStyle?: string;
@@ -94,13 +94,15 @@ const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload,
                 )}
 
                 {/* Frame Overlay Layer */}
-                <div className="absolute inset-0 pointer-events-none z-10">
-                    <img
-                        src={selectedFrame}
-                        alt="Frame Overlay"
-                        className="w-full h-full object-contain"
-                    />
-                </div>
+                {selectedFrame && (
+                    <div className="absolute inset-0 pointer-events-none z-10">
+                        <img
+                            src={selectedFrame}
+                            alt="Frame Overlay"
+                            className="w-full h-full object-contain"
+                        />
+                    </div>
+                )}
 
                 {/* Identity Overlay */}
                 {showIdentity && identityName && (
@@ -149,7 +151,7 @@ const FrameEditor: React.FC<FrameEditorProps> = ({ selectedFrame, onPhotoUpload,
                         <button onClick={() => setRotation(r => r - 90)} className="p-3 bg-gray-800 rounded-lg text-white hover:bg-gray-700"><RotateCw size={20} /></button>
                         <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))} className="p-3 bg-gray-800 rounded-lg text-white hover:bg-gray-700"><ZoomOut size={20} /></button>
                         <button onClick={() => setScale(s => Math.min(3, s + 0.1))} className="p-3 bg-gray-800 rounded-lg text-white hover:bg-gray-700"><ZoomIn size={20} /></button>
-                        <button onClick={() => { setScale(1); setRotation(0); setPosition({ x: 0, y: 0 }); }} className="p-3 bg-gray-800 rounded-lg text-white hover:bg-gray-700 font-xs">Reset</button>
+                        <button onClick={() => { setScale(1); setRotation(0); setPosition({ x: 0, y: 0 }); }} className="p-3 bg-gray-800 rounded-lg text-white hover:bg-gray-700 text-xs">Reset</button>
                     </>
                 )}
             </div>

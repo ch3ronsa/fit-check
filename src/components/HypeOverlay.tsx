@@ -1,42 +1,98 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import html2canvas from 'html2canvas';
 
 interface HypeOverlayProps {
     show: boolean;
     onComplete: (score: number, message: string) => void;
 }
 
-const HYPE_MESSAGES = [
-    "🔥 This fit locks the blockchain!",
+const FALLBACK_MESSAGES = [
+    "This fit locks the blockchain!",
     "CEO vibes only. Respect!",
     "Mirror cracked, too much charisma!",
     "You are the new King/Queen of Base.",
     "Satoshi would give his wallet for this.",
-    "I rate 10/10. What do you think? 👇",
-    "Is this fit bearish or bullish?",
-    "WAGMI energy detected! 🚀",
-    "Straight to the moon! 🌕"
+    "WAGMI energy detected!",
+    "Straight to the moon!",
+    "This fit is based fr fr",
+    "Drip level: immeasurable",
 ];
+
+function generateFallback(): { score: number; message: string } {
+    const score = Math.floor(Math.random() * (100 - 85 + 1)) + 85;
+    const message = FALLBACK_MESSAGES[Math.floor(Math.random() * FALLBACK_MESSAGES.length)];
+    return { score, message };
+}
+
+async function captureCanvasAsBase64(): Promise<string | null> {
+    const element = document.getElementById('fit-check-canvas');
+    if (!element) return null;
+
+    try {
+        const canvas = await html2canvas(element, {
+            scale: 1, // Low res for AI analysis (saves bandwidth)
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: null,
+            logging: false,
+        });
+        return canvas.toDataURL('image/jpeg', 0.5); // Low quality for API
+    } catch {
+        return null;
+    }
+}
+
+async function analyzeWithAI(imageBase64: string): Promise<{ score: number; message: string }> {
+    const response = await fetch('/api/analyze-style', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageBase64 }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    return response.json();
+}
 
 const HypeOverlay: React.FC<HypeOverlayProps> = ({ show, onComplete }) => {
     const [score, setScore] = useState(0);
     const [isAnalysing, setIsAnalysing] = useState(true);
 
     useEffect(() => {
-        if (show) {
-            setIsAnalysing(true);
-            // Simulate analysis
-            const timer = setTimeout(() => {
-                const randomScore = Math.floor(Math.random() * (100 - 85 + 1)) + 85;
-                const randomMessage = HYPE_MESSAGES[Math.floor(Math.random() * HYPE_MESSAGES.length)];
+        if (!show) return;
 
-                setScore(randomScore);
-                setIsAnalysing(false);
-                onComplete(randomScore, randomMessage);
-            }, 800);
+        let cancelled = false;
+        setIsAnalysing(true);
 
-            return () => clearTimeout(timer);
-        }
+        const analyze = async () => {
+            let result: { score: number; message: string };
+
+            try {
+                const imageBase64 = await captureCanvasAsBase64();
+                if (cancelled) return;
+
+                if (imageBase64) {
+                    result = await analyzeWithAI(imageBase64);
+                } else {
+                    result = generateFallback();
+                }
+            } catch {
+                result = generateFallback();
+            }
+
+            if (cancelled) return;
+
+            setScore(result.score);
+            setIsAnalysing(false);
+            onComplete(result.score, result.message);
+        };
+
+        analyze();
+
+        return () => { cancelled = true; };
     }, [show, onComplete]);
 
     if (!show) return null;

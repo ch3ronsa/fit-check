@@ -1,17 +1,28 @@
 import { useState } from 'react';
 import { useAccount, useWriteContract } from 'wagmi';
+import { parseEther } from 'viem';
 import { uploadToIPFS } from '../lib/pinata';
 import { generateImageBlob, saveToHistory } from './useFitHistory';
 import { playSuccessSound } from '../lib/utils';
 import { showBrowserNotification } from '../lib/notifications';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../constants';
+import {
+  CONTRACT_ADDRESS, CONTRACT_ABI,
+  CONTRACT_V2_ADDRESS, CONTRACT_V2_ABI,
+} from '../constants';
+
+const useV2 = CONTRACT_V2_ADDRESS.length > 2; // "0x..." means V2 is deployed
+const MINT_FEE = '0.0001'; // 0.0001 ETH
+
+interface MintOptions {
+  frameCreatorAddress?: string;
+}
 
 export const useMint = () => {
   const { isConnected, address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const [isMinting, setIsMinting] = useState(false);
 
-  const handleMint = async (finalScore: number, finalMessage: string) => {
+  const handleMint = async (finalScore: number, finalMessage: string, options?: MintOptions) => {
     if (!isConnected || !address) {
       alert("Please connect your wallet first!");
       return;
@@ -36,12 +47,34 @@ export const useMint = () => {
         console.warn('IPFS upload failed:', uploadErr);
       }
 
-      const hash = await writeContractAsync({
-        address: CONTRACT_ADDRESS as `0x${string}`,
-        abi: CONTRACT_ABI,
-        functionName: 'safeMint',
-        args: [address, tokenURI],
-      });
+      let hash: string;
+
+      // Use V2 contract with creator revenue sharing if available
+      if (useV2 && options?.frameCreatorAddress) {
+        hash = await writeContractAsync({
+          address: CONTRACT_V2_ADDRESS,
+          abi: CONTRACT_V2_ABI,
+          functionName: 'mintWithCreator',
+          args: [address, tokenURI, options.frameCreatorAddress as `0x${string}`],
+          value: parseEther(MINT_FEE),
+        });
+      } else if (useV2) {
+        // V2 free mint (no frame creator)
+        hash = await writeContractAsync({
+          address: CONTRACT_V2_ADDRESS,
+          abi: CONTRACT_V2_ABI,
+          functionName: 'safeMint',
+          args: [address, tokenURI],
+        });
+      } else {
+        // V1 fallback
+        hash = await writeContractAsync({
+          address: CONTRACT_ADDRESS as `0x${string}`,
+          abi: CONTRACT_ABI,
+          functionName: 'safeMint',
+          args: [address, tokenURI],
+        });
+      }
 
       await saveToHistory(finalScore, finalMessage);
       playSuccessSound();

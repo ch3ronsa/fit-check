@@ -16,8 +16,12 @@ import { useMint } from './hooks/useMint';
 import { handleDownload } from './hooks/useDownload';
 import Profile from './pages/Profile';
 import HowToUse from './pages/HowToUse';
+import FrensGenerator from './pages/FrensGenerator';
+import FrameMarketplace from './pages/FrameMarketplace';
+import CreateFrame from './pages/CreateFrame';
 import { updateLastActivity, shouldSendStreakReminder, showBrowserNotification, requestBrowserNotificationPermission } from './lib/notifications';
 import { FRAMES, FrameOption } from './data/frames';
+import { useCommunityFrames } from './hooks/useCommunityFrames';
 import sdk from '@farcaster/frame-sdk';
 
 function Studio() {
@@ -46,6 +50,23 @@ function Studio() {
   const { contacts: topContacts } = useTopContacts();
   const { isUploading, handleShare } = useShare();
   const { isMinting, handleMint } = useMint();
+  const { frames: communityFrames } = useCommunityFrames();
+
+  // Merge OG frames with installed community frames
+  const installedIds: Set<string> = (() => {
+    try {
+      const saved = localStorage.getItem('fitcheck_installed_frames');
+      return saved ? new Set(JSON.parse(saved) as string[]) : new Set();
+    } catch {
+      return new Set<string>();
+    }
+  })();
+
+  const installedCommunityFrames: FrameOption[] = communityFrames
+    .filter(f => installedIds.has(f.id))
+    .map(f => ({ id: f.id, path: f.url, name: f.name }));
+
+  const allFrames = [...FRAMES, ...installedCommunityFrames];
 
   useEffect(() => {
     const initializeFrame = async () => {
@@ -115,7 +136,11 @@ function Studio() {
 
   const onMint = () => {
     if (finalScore) {
-      handleMint(finalScore, finalMessage);
+      // Pass frame creator address for revenue sharing (community frames only)
+      const frameCreator = communityFrames.find(f => f.id === selectedFrame.id);
+      handleMint(finalScore, finalMessage, {
+        frameCreatorAddress: frameCreator?.creator.address,
+      });
     }
   };
 
@@ -142,7 +167,7 @@ function Studio() {
         {/* Frame Selector */}
         <div className="mb-6 overflow-x-auto pb-2 scrollbar-hide">
           <div className="flex gap-4 w-max">
-            {FRAMES.map((frame) => (
+            {allFrames.map((frame) => (
               <button
                 key={frame.id}
                 onClick={() => setSelectedFrame(frame)}
@@ -232,6 +257,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Studio />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/frens" element={<FrensGenerator />} />
+        <Route path="/frames" element={<FrameMarketplace />} />
+        <Route path="/frames/create" element={<CreateFrame />} />
         <Route path="/help" element={<HowToUse />} />
       </Routes>
       <BottomNav />

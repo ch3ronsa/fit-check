@@ -165,12 +165,14 @@ function Studio() {
 
       <main className="container mx-auto px-4 py-6 max-w-lg">
         {/* Frame Selector */}
-        <div className="mb-6 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="mb-6 overflow-x-auto pb-2 scrollbar-hide" role="group" aria-label="Frame selection">
           <div className="flex gap-4 w-max">
             {allFrames.map((frame) => (
               <button
                 key={frame.id}
                 onClick={() => setSelectedFrame(frame)}
+                aria-label={`Select ${frame.name}`}
+                aria-pressed={selectedFrame.id === frame.id}
                 className={`relative w-20 h-20 rounded-lg border-2 overflow-hidden transition-all ${selectedFrame.id === frame.id ? 'border-base-blue shadow-[0_0_15px_#0052FF]' : 'border-gray-700 hover:border-gray-500'
                   }`}
               >
@@ -222,11 +224,12 @@ function Studio() {
 
           {/* Hype Message Display */}
           {finalMessage && (
-            <div className="mt-4 text-center animate-in slide-in-from-bottom-4 fade-in duration-500">
+            <div className="mt-4 text-center animate-in slide-in-from-bottom-4 fade-in duration-500" role="status" aria-live="polite">
               <div className="inline-block p-4 rounded-xl bg-gradient-to-r from-base-blue/10 to-neon-purple/10 border border-base-blue/20 backdrop-blur-sm">
                 <p className="font-display font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-base-blue to-neon-purple">
                   "{finalMessage}"
                 </p>
+                <span className="sr-only">Style score: {finalScore} out of 100. {finalMessage}</span>
               </div>
             </div>
           )}

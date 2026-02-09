@@ -1,11 +1,39 @@
-What kind of advantages do you offer to users?
+. What inspired you to build Fit Check Studio?
 
-Fit Check Studio offers several unique advantages, starting with its incredible ease of use—upload a photo, choose a frame and filter, share without complicated wallet setups or technical knowledge. We give users true ownership of their content, and it's mobile-first, designed for quick, visual, and shareable experiences that go beyond just another NFT minting tool to create a complete social experience for the Base community.
+The Logic: Web3 culture is all about self-expression, but Base was missing a native tool to create and edit content on-chain.
 
-Why did you build on Base?
+    The Gap: Since there’s no built-in editor on Base, creators often leave the ecosystem to use Web2 tools.
 
-Base offers low fees, fast transactions, and a vibrant community, making it the perfect ecosystem for a social, user-friendly app that's accessible to everyone, not just crypto natives. I wanted to build an app on Base that provides engagement for both Web2 and Web3 users. This setup allows for seamless interactions that bridge traditional social experiences with blockchain benefits.
+    The Goal: We built Fit Check Studio to fill this void. It’s an all-in-one editor that keeps the creative process entirely on-chain.
 
-What's next for Fit Check Studio on Base?
+    The Impact: Now, users can edit and mint their style in seconds without ever leaving Base.
 
-We're planning to add community-created frames, NFT frame collections, and leaderboards to build a full social ecosystem around fit checks on Base. The idea originated with Fit Check, but the ultimate goal of the product is to make content creation in on-chain social media as natural as using a wallet. We're also planning to add video editing features, including AI-powered editing for videos or photos, to expand beyond just photos.
+2. What kind of advantages do you offer to users?
+
+The Logic: We turned a complex technical process into a simple, social experience.
+
+    Edit-to-Mint: The fastest way to turn a photo into an on-chain asset. Just upload, frame, and mint.
+
+    No Barriers: No complicated wallet setups. It’s mobile-first and built for everyone.
+
+    Ownership: It’s not just an edit; it’s a social "fit check" that you actually own.
+
+3. Why did you build on Base?
+
+The Logic: A social app needs a home that is fast, cheap, and crowded.
+
+    Performance: Low fees and instant transactions make sharing seamless.
+
+    Connectivity: It’s the best bridge between Web2 social habits and Web3 benefits.
+
+    Retention: We help the Base community stay engaged by providing the creative tools they need in one place.
+
+4. What's next for Fit Check Studio on Base?
+
+The Logic: Moving from a tool to a complete social ecosystem.
+
+    Community: Adding custom frames and leaderboards for more social engagement.
+
+    AI Video: Expanding into AI-powered video editing to push the boundaries of on-chain media.
+
+    The Vision: Making on-chain content creation as natural as sending a text.

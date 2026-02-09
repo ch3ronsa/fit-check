@@ -42,4 +42,4 @@ The Logic: Moving from a tool to a complete social ecosystem.
 
 
     
-The Logic: I noticehat Web3   a huge self is still a  piece of  While th is very active, on-chain production is waiting for the right tools because Base doesn't have a native camera or editor yet.
+The Logic: I noticehat Web3   a huge self is still a  pi

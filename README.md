@@ -39,6 +39,3 @@ The Logic: Moving from a tool to a complete social ecosystem.
     The Vision: Making on-chain content creation as natural as sending a text.
 
 
-
-
- Web3    self 

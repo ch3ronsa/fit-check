@@ -37,3 +37,10 @@ The Logic: Moving from a tool to a complete social ecosystem.
     AI Video: Expanding into AI-powered video editing to push the boundaries of on-chain media.
 
     The Vision: Making on-chain content creation as natural as sending a text.
+
+
+
+
+    What inspired you to build Fit Check Studio?
+
+The Logic: I noticed that Web3 culture has a huge potential for self-expression, but there is still a small piece of the puzzle missing. While the community is very active, on-chain production is waiting for the right tools because Base doesn't have a native camera or editor yet.

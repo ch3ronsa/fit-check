@@ -42,4 +42,4 @@ The Logic: Moving from a tool to a complete social ecosystem.
 
 
     
-The Logic: I noticehat Web3   a huge self is still a  pi
+The Logic: I noticehat Web3   a huge self 

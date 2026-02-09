@@ -5,3 +5,7 @@ Fit Check Studio offers several unique advantages, starting with its incredible 
 Why did you build on Base?
 
 Base offers low fees, fast transactions, and a vibrant community, making it the perfect ecosystem for a social, user-friendly app that's accessible to everyone, not just crypto natives. I wanted to build an app on Base that provides engagement for both Web2 and Web3 users. This setup allows for seamless interactions that bridge traditional social experiences with blockchain benefits.
+
+What's next for Fit Check Studio on Base?
+
+We're planning to add community-created frames, NFT frame collections, and leaderboards to build a full social ecosystem around fit checks on Base. The idea originated with Fit Check, but the ultimate goal of the product is to make content creation in on-chain social media as natural as using a wallet. We're also planning to add video editing features, including AI-powered editing for videos or photos, to expand beyond just photos.

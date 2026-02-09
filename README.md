@@ -42,4 +42,4 @@ The Logic: Moving from a tool to a complete social ecosystem.
 
 
     
-The Logic: I noticed that Web3 culture has a huge potential for self-expression, but there is still a small piece of the puzzle missing. While the community is very active, on-chain production is waiting for the right tools because Base doesn't have a native camera or editor yet.
+The Logic: I noticehat Web3 culture has a huge potential for self-expression, but there is still a small piece of the puzzle missing. While the community is very active, on-chain production is waiting for the right tools because Base doesn't have a native camera or editor yet.

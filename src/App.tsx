@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import FrameEditor from './components/FrameEditor';
 import HypeOverlay from './components/HypeOverlay';
@@ -14,15 +14,25 @@ import { useTopContacts, FarcasterContact } from './hooks/useTopContacts';
 import { useShare } from './hooks/useShare';
 import { useMint } from './hooks/useMint';
 import { handleDownload } from './hooks/useDownload';
-import Profile from './pages/Profile';
-import HowToUse from './pages/HowToUse';
-import FrensGenerator from './pages/FrensGenerator';
-import FrameMarketplace from './pages/FrameMarketplace';
-import CreateFrame from './pages/CreateFrame';
 import { updateLastActivity, shouldSendStreakReminder, showBrowserNotification, requestBrowserNotificationPermission } from './lib/notifications';
 import { FRAMES, FrameOption } from './data/frames';
 import { useCommunityFrames } from './hooks/useCommunityFrames';
 import sdk from '@farcaster/frame-sdk';
+
+// Lazy-loaded pages for code splitting
+const Profile = lazy(() => import('./pages/Profile'));
+const HowToUse = lazy(() => import('./pages/HowToUse'));
+const FrensGenerator = lazy(() => import('./pages/FrensGenerator'));
+const FrameMarketplace = lazy(() => import('./pages/FrameMarketplace'));
+const CreateFrame = lazy(() => import('./pages/CreateFrame'));
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-base-blue border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 function Studio() {
   const identity = useUserIdentity();
@@ -258,14 +268,16 @@ function Studio() {
 function App() {
   return (
     <>
-      <Routes>
-        <Route path="/" element={<Studio />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/frens" element={<FrensGenerator />} />
-        <Route path="/frames" element={<FrameMarketplace />} />
-        <Route path="/frames/create" element={<CreateFrame />} />
-        <Route path="/help" element={<HowToUse />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Studio />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/frens" element={<FrensGenerator />} />
+          <Route path="/frames" element={<FrameMarketplace />} />
+          <Route path="/frames/create" element={<CreateFrame />} />
+          <Route path="/help" element={<HowToUse />} />
+        </Routes>
+      </Suspense>
       <BottomNav />
     </>
   );

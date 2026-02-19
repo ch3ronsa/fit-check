@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { checkRateLimit, sendRateLimitResponse } from './_lib/rateLimit';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -63,6 +64,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // Rate limit: 5 requests per 60 seconds per IP
+    if (!checkRateLimit(req, res, { limit: 5, windowSeconds: 60 })) {
+        return sendRateLimitResponse(res);
     }
 
     if (!OPENAI_API_KEY) {

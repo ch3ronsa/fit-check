@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { checkRateLimit, sendRateLimitResponse } from './_lib/rateLimit';
 
 const PINATA_JWT = process.env.VITE_PINATA_JWT;
 const PINATA_GATEWAY = 'https://blush-puny-sawfish-198.mypinata.cloud/ipfs';
@@ -25,6 +26,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
+    }
+
+    // Rate limit: GET 30/min, POST 3/min per IP
+    const limit = req.method === 'POST' ? 3 : 30;
+    if (!checkRateLimit(req, res, { limit, windowSeconds: 60 })) {
+        return sendRateLimitResponse(res);
     }
 
     if (req.method === 'GET') {

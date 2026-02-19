@@ -99,15 +99,12 @@ function Studio() {
     }
   }, [isDarkMode]);
 
+  // Check streak reminders only if user already granted permission (no auto-prompt)
   useEffect(() => {
-    const checkStreakReminder = async () => {
-      await requestBrowserNotificationPermission();
-      if (shouldSendStreakReminder()) {
-        showBrowserNotification('streak_reminder');
-        localStorage.setItem('fitcheck_last_streak_reminder', Date.now().toString());
-      }
-    };
-    checkStreakReminder();
+    if (Notification.permission === 'granted' && shouldSendStreakReminder()) {
+      showBrowserNotification('streak_reminder');
+      localStorage.setItem('fitcheck_last_streak_reminder', Date.now().toString());
+    }
   }, []);
 
   const handlePhotoUpload = (file: File) => {
@@ -126,6 +123,10 @@ function Studio() {
     setFinalScore(score);
     setFinalMessage(message);
     updateLastActivity();
+    // Request notification permission after first fit check (better UX than on page load)
+    if (Notification.permission === 'default') {
+      requestBrowserNotificationPermission();
+    }
   }, []);
 
   const onShare = () => {

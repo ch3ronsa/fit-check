@@ -1,4 +1,5 @@
 import html2canvas from 'html2canvas';
+import { toast } from 'sonner';
 
 export const handleDownload = async (format: 'square' | 'story' = 'square') => {
   const element = document.getElementById('fit-check-canvas');
@@ -71,6 +72,6 @@ export const handleDownload = async (format: 'square' | 'story' = 'square') => {
     document.body.removeChild(link);
   } catch (error) {
     console.error("Download failed:", error);
-    alert("Failed to save image. Please try again.");
+    toast.error('Failed to save image. Please try again.');
   }
 };

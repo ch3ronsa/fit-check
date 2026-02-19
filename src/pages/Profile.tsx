@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Share2, Flame, Calendar, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useUserIdentity } from '../hooks/useUserIdentity';
 import { parseFitDate } from '../lib/utils';
 import { APP_URL } from '../config';
@@ -105,7 +106,7 @@ const Profile: React.FC = () => {
         } else {
             try {
                 await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-                alert('Copied to clipboard!');
+                toast.success('Copied to clipboard!');
             } catch (err) {
                 console.error('Clipboard failed:', err);
             }

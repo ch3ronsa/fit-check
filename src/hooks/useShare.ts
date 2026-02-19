@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { uploadToIPFS, shortenUrl } from '../lib/pinata';
 import { generateImageBlob } from './useFitHistory';
 import { FarcasterContact } from './useTopContacts';
@@ -19,7 +20,7 @@ export const useShare = () => {
       const imageBlob = await generateImageBlob();
 
       if (!imageBlob) {
-        alert('Could not generate image. Please try again.');
+        toast.error('Could not generate image. Please try again.');
         setIsUploading(false);
         return;
       }
@@ -56,7 +57,7 @@ export const useShare = () => {
       }
     } catch (err) {
       console.error('Share failed:', err);
-      alert('Could not share. Please try again.');
+      toast.error('Could not share. Please try again.');
     } finally {
       setIsUploading(false);
     }

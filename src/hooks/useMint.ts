@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAccount, useWriteContract } from 'wagmi';
 import { parseEther } from 'viem';
+import { toast } from 'sonner';
 import { uploadToIPFS } from '../lib/pinata';
 import { generateImageBlob, saveToHistory } from './useFitHistory';
 import { playSuccessSound } from '../lib/utils';
@@ -24,7 +25,7 @@ export const useMint = () => {
 
   const handleMint = async (finalScore: number, finalMessage: string, options?: MintOptions) => {
     if (!isConnected || !address) {
-      alert("Please connect your wallet first!");
+      toast.warning('Please connect your wallet first!');
       return;
     }
     setIsMinting(true);
@@ -32,7 +33,7 @@ export const useMint = () => {
     try {
       const imageBlob = await generateImageBlob();
       if (!imageBlob) {
-        alert("Could not generate image. Please try again.");
+        toast.error('Could not generate image. Please try again.');
         setIsMinting(false);
         return;
       }
@@ -79,14 +80,14 @@ export const useMint = () => {
       await saveToHistory(finalScore, finalMessage);
       playSuccessSound();
       showBrowserNotification('mint_success');
-      alert(`Successfully Minted on Base! 🔵\nTX: ${hash}`);
+      toast.success(`Minted on Base! TX: ${hash.slice(0, 10)}...`);
     } catch (error: unknown) {
       console.error("Mint failed", error);
       const err = error as Error;
       if (err.message?.includes('rejected') || err.message?.includes('denied') || err.message?.includes('User denied')) {
-        // User rejected transaction
+        toast.info('Transaction cancelled');
       } else {
-        alert(`Minting failed: ${err.message || 'Unknown error'}`);
+        toast.error(`Minting failed: ${err.message || 'Unknown error'}`);
       }
     } finally {
       setIsMinting(false);

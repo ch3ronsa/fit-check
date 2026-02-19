@@ -6,10 +6,11 @@ import { toast } from 'sonner';
 import { useUserIdentity } from '../hooks/useUserIdentity';
 import { parseFitDate } from '../lib/utils';
 import { APP_URL } from '../config';
+import { getAllFits, migrateFromLocalStorage, type SavedFit } from '../lib/db';
 
-interface SavedFit {
+interface DisplayFit {
     id: string;
-    image: string;
+    imageUrl: string;
     score: number;
     date: string;
     message: string;
@@ -19,54 +20,60 @@ const Profile: React.FC = () => {
     const navigate = useNavigate();
     const identity = useUserIdentity();
 
-    const [fits, setFits] = useState<SavedFit[]>([]);
+    const [fits, setFits] = useState<DisplayFit[]>([]);
     const [streak, setStreak] = useState(0);
     const [showCelebration, setShowCelebration] = useState(false);
 
     useEffect(() => {
-        const saved = localStorage.getItem('fitCheckHistory');
-        if (saved) {
-            const parsedFits: SavedFit[] = JSON.parse(saved);
+        const loadFits = async () => {
+            // Migrate old localStorage data on first load
+            await migrateFromLocalStorage();
 
-            // Sort by ID (Timestamp) Descending - Newest First
-            const sortedFits = parsedFits.sort((a, b) => Number(b.id) - Number(a.id));
-            setFits(sortedFits);
+            const savedFits = await getAllFits();
+            const displayFits: DisplayFit[] = savedFits.map(f => ({
+                id: f.id,
+                imageUrl: URL.createObjectURL(f.image),
+                score: f.score,
+                date: f.date,
+                message: f.message,
+            }));
 
-            // Calculate Streak
-            calculateStreak(sortedFits);
-        }
+            setFits(displayFits);
+            calculateStreak(displayFits);
+        };
+
+        loadFits();
+
+        // Cleanup object URLs on unmount
+        return () => {
+            fits.forEach(f => URL.revokeObjectURL(f.imageUrl));
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const calculateStreak = (history: SavedFit[]) => {
+    const calculateStreak = (history: DisplayFit[]) => {
         if (history.length === 0) {
             setStreak(0);
             return;
         }
 
-        // Get unique dates (YYYY-MM-DD) from history in LOCAL TIME
         const uniqueDates = Array.from(new Set(history.map(f => {
             const d = parseFitDate(f);
-            // Use en-CA for YYYY-MM-DD format in local time
             return d.toLocaleDateString('en-CA');
-        }))).sort().reverse(); // Newest first
-
-        // uniqueDates calculated for streak
+        }))).sort().reverse();
 
         if (uniqueDates.length === 0) return;
 
         const today = new Date().toLocaleDateString('en-CA');
         const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
 
-        let currentStreak = 0;
-
-        // Check if the most recent activity is today or yesterday
         const lastActive = uniqueDates[0];
         if (lastActive !== today && lastActive !== yesterday) {
             setStreak(0);
             return;
         }
 
-        currentStreak = 1;
+        let currentStreak = 1;
         for (let i = 0; i < uniqueDates.length - 1; i++) {
             const current = new Date(uniqueDates[i]);
             const next = new Date(uniqueDates[i + 1]);
@@ -82,14 +89,13 @@ const Profile: React.FC = () => {
 
         setStreak(currentStreak);
 
-        // Trigger celebration if streak is 7 or more
         if (currentStreak >= 7) {
             setShowCelebration(true);
             setTimeout(() => setShowCelebration(false), 5000);
         }
     };
 
-    const handleShare = async (fit: SavedFit) => {
+    const handleShare = async (fit: DisplayFit) => {
         const shareText = `Checking my fit on Base! 🔵 My Style Score: ${fit.score}/100. "${fit.message}" Rate this look! 🛡️ #BaseFitCheck`;
         const shareUrl = APP_URL;
 
@@ -100,7 +106,7 @@ const Profile: React.FC = () => {
                     text: shareText,
                     url: shareUrl,
                 });
-            } catch (err) {
+            } catch {
                 // Share cancelled by user
             }
         } else {
@@ -213,7 +219,7 @@ const Profile: React.FC = () => {
                                         SCORE: {fit.score}
                                     </span>
                                 </div>
-                                <img src={fit.image} alt="Fit" className="w-full h-auto" />
+                                <img src={fit.imageUrl} alt="Fit" className="w-full h-auto" />
                                 <div className="p-4 flex justify-between items-center">
                                     <p className="text-sm font-medium opacity-80 truncate max-w-[200px] italic">"{fit.message}"</p>
                                     <button

@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useUserIdentity } from '../hooks/useUserIdentity';
 import { parseFitDate } from '../lib/utils';
 import { APP_URL } from '../config';
-import { getAllFits, migrateFromLocalStorage, type SavedFit } from '../lib/db';
+import { getAllFits, migrateFromLocalStorage } from '../lib/db';
 
 interface DisplayFit {
     id: string;

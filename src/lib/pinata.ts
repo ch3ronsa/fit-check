@@ -1,8 +1,6 @@
-// Pinata IPFS Upload Service
+// Pinata IPFS Upload Service (via server-side API)
 
 import { PINATA_GATEWAY } from '../config';
-
-const PINATA_JWT = import.meta.env.VITE_PINATA_JWT;
 
 export interface UploadResult {
     success: boolean;
@@ -12,57 +10,33 @@ export interface UploadResult {
 }
 
 /**
- * Upload an image blob to Pinata IPFS
+ * Upload an image blob to IPFS via server-side API.
+ * The Pinata JWT is kept server-side only for security.
  */
 export const uploadToIPFS = async (blob: Blob, filename?: string): Promise<UploadResult> => {
-    if (!PINATA_JWT) {
-        console.error('Pinata JWT not configured');
-        return { success: false, error: 'Upload service not configured' };
-    }
-
     try {
-        const formData = new FormData();
-        const file = new File([blob], filename || `fit-check-${Date.now()}.png`, { type: 'image/png' });
-        formData.append('file', file);
+        // Convert blob to base64
+        const base64 = await blobToBase64(blob);
 
-        // Add metadata
-        const metadata = JSON.stringify({
-            name: filename || `fit-check-${Date.now()}`,
-            keyvalues: {
-                app: 'base-fit-check',
-                timestamp: Date.now().toString(),
-            }
-        });
-        formData.append('pinataMetadata', metadata);
-
-        // Upload options
-        const options = JSON.stringify({
-            cidVersion: 1,
-        });
-        formData.append('pinataOptions', options);
-
-        const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+        const response = await fetch('/api/upload', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${PINATA_JWT}`,
-            },
-            body: formData,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image: base64,
+                filename: filename || `fit-check-${Date.now()}.png`,
+            }),
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Pinata upload failed:', errorText);
-            return { success: false, error: 'Upload failed' };
+            const data = await response.json().catch(() => ({}));
+            return { success: false, error: data.error || 'Upload failed' };
         }
 
         const data = await response.json();
-        const ipfsHash = data.IpfsHash;
-        const url = `${PINATA_GATEWAY}/${ipfsHash}`;
-
         return {
-            success: true,
-            ipfsHash,
-            url,
+            success: data.success,
+            ipfsHash: data.ipfsHash,
+            url: data.url,
         };
     } catch (error) {
         console.error('IPFS upload error:', error);
@@ -70,15 +44,20 @@ export const uploadToIPFS = async (blob: Blob, filename?: string): Promise<Uploa
     }
 };
 
+function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
 /**
  * Generate a shareable URL for a fit check image
  */
 export const getShareableUrl = (ipfsHash: string): string => {
-    // Option 1: Pinata gateway
     return `${PINATA_GATEWAY}/${ipfsHash}`;
-
-    // Option 2: If you want a custom domain later:
-    // return `https://check-fit-two.vercel.app/fit/${ipfsHash}`;
 };
 
 /**
@@ -94,6 +73,5 @@ export const shortenUrl = async (url: string): Promise<string> => {
     } catch (error) {
         console.error('URL shortening failed:', error);
     }
-    // Return original URL if shortening fails
     return url;
 };

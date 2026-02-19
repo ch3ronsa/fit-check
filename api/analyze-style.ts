@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { checkRateLimit, sendRateLimitResponse } from './_lib/rateLimit';
+import { setCorsHeaders } from './_lib/cors';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -36,9 +37,7 @@ interface AnalyzeResponse {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();

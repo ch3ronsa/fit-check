@@ -1,16 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { checkRateLimit, sendRateLimitResponse } from './_lib/rateLimit';
+import { setCorsHeaders } from './_lib/cors';
 
 const PINATA_JWT = process.env.VITE_PINATA_JWT;
 const PINATA_GATEWAY = 'https://blush-puny-sawfish-198.mypinata.cloud/ipfs';
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://check-fit-two.vercel.app';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const origin = req.headers.origin || '';
-    const corsOrigin = origin === ALLOWED_ORIGIN || origin.includes('localhost') ? origin : ALLOWED_ORIGIN;
-    res.setHeader('Access-Control-Allow-Origin', corsOrigin);
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();

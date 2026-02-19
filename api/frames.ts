@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { checkRateLimit, sendRateLimitResponse } from './_lib/rateLimit';
+import { setCorsHeaders } from './_lib/cors';
 
 const PINATA_JWT = process.env.VITE_PINATA_JWT;
 const PINATA_GATEWAY = 'https://blush-puny-sawfish-198.mypinata.cloud/ipfs';
@@ -20,9 +21,7 @@ export interface CommunityFrame {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    setCorsHeaders(req, res);
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();

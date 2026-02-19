@@ -77,8 +77,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const { image } = req.body as FrensRequest;
 
-        if (!image) {
+        if (!image || typeof image !== 'string') {
             return res.status(400).json({ error: 'Missing image data' });
+        }
+
+        // Validate image size (max 5MB base64 ~ 6.7MB string)
+        if (image.length > 7 * 1024 * 1024) {
+            return res.status(400).json({ error: 'Image too large (max 5MB)' });
         }
 
         const imageData = image.startsWith('data:')

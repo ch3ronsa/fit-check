@@ -100,13 +100,19 @@ async function handleUpload(req: VercelRequest, res: VercelResponse) {
     try {
         const { image, name, creatorAddress, creatorName, creatorFid } = req.body;
 
-        if (!image || !name) {
+        if (!image || typeof image !== 'string' || !name || typeof name !== 'string') {
             return res.status(400).json({ error: 'Missing image or name' });
         }
 
-        // Validate name length
-        if (name.length > 30) {
-            return res.status(400).json({ error: 'Name too long (max 30 chars)' });
+        // Validate name length and sanitize
+        const sanitizedName = name.trim().slice(0, 30);
+        if (sanitizedName.length === 0) {
+            return res.status(400).json({ error: 'Name cannot be empty' });
+        }
+
+        // Validate creator address if provided (Ethereum address format)
+        if (creatorAddress && !/^0x[a-fA-F0-9]{40}$/.test(creatorAddress)) {
+            return res.status(400).json({ error: 'Invalid creator address' });
         }
 
         // Convert base64 to buffer
@@ -124,7 +130,7 @@ async function handleUpload(req: VercelRequest, res: VercelResponse) {
         formData.append('file', blob, `frame-${Date.now()}.png`);
 
         const metadata = JSON.stringify({
-            name: name,
+            name: sanitizedName,
             keyvalues: {
                 app: 'base-fit-check-frame',
                 creatorAddress: creatorAddress || '',
@@ -152,7 +158,7 @@ async function handleUpload(req: VercelRequest, res: VercelResponse) {
 
         const frame: CommunityFrame = {
             id: ipfsHash,
-            name,
+            name: sanitizedName,
             ipfsHash,
             url: `${PINATA_GATEWAY}/${ipfsHash}`,
             creator: {

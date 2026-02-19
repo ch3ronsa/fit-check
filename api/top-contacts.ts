@@ -33,6 +33,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Missing fid parameter' });
     }
 
+    // Validate fid is a positive integer
+    if (!/^\d+$/.test(fid) || parseInt(fid) <= 0) {
+        return res.status(400).json({ error: 'Invalid fid parameter' });
+    }
+
     if (!NEYNAR_API_KEY) {
         return res.status(500).json({ error: 'Neynar API key not configured' });
     }

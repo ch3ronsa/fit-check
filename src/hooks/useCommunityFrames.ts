@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface CommunityFrame {
     id: string;
@@ -15,89 +15,69 @@ export interface CommunityFrame {
     createdAt: string;
 }
 
-const CACHE_KEY = 'fitcheck_community_frames';
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+async function fetchCommunityFrames(): Promise<CommunityFrame[]> {
+    const response = await fetch('/api/frames');
+    if (!response.ok) throw new Error('Failed to fetch frames');
+    const data = await response.json();
+    return data.frames || [];
+}
 
-interface CacheData {
-    frames: CommunityFrame[];
-    timestamp: number;
+async function uploadFrameToAPI(params: {
+    image: string;
+    name: string;
+    creator: { address?: string; name: string; fid?: number };
+}): Promise<CommunityFrame> {
+    const response = await fetch('/api/frames', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            image: params.image,
+            name: params.name,
+            creatorAddress: params.creator.address,
+            creatorName: params.creator.name,
+            creatorFid: params.creator.fid,
+        }),
+    });
+
+    if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Upload failed');
+    }
+
+    const data = await response.json();
+    return data.frame as CommunityFrame;
 }
 
 export function useCommunityFrames() {
-    const [frames, setFrames] = useState<CommunityFrame[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    const fetchFrames = useCallback(async (skipCache = false) => {
-        // Check cache first
-        if (!skipCache) {
-            try {
-                const cached = localStorage.getItem(CACHE_KEY);
-                if (cached) {
-                    const data: CacheData = JSON.parse(cached);
-                    if (Date.now() - data.timestamp < CACHE_TTL) {
-                        setFrames(data.frames);
-                        return;
-                    }
-                }
-            } catch {
-                // Invalid cache, ignore
-            }
-        }
+    const { data: frames = [], isLoading, error } = useQuery({
+        queryKey: ['community-frames'],
+        queryFn: fetchCommunityFrames,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        retry: 2,
+    });
 
-        setIsLoading(true);
-        setError(null);
+    const uploadMutation = useMutation({
+        mutationFn: uploadFrameToAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['community-frames'] });
+        },
+    });
 
-        try {
-            const response = await fetch('/api/frames');
-            if (!response.ok) throw new Error('Failed to fetch frames');
-
-            const data = await response.json();
-            const fetched = data.frames || [];
-            setFrames(fetched);
-
-            // Cache the result
-            localStorage.setItem(CACHE_KEY, JSON.stringify({
-                frames: fetched,
-                timestamp: Date.now(),
-            }));
-        } catch (err) {
-            console.error('Failed to fetch community frames:', err);
-            setError(err instanceof Error ? err.message : 'Unknown error');
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchFrames();
-    }, [fetchFrames]);
-
-    const uploadFrame = async (image: string, name: string, creator: { address?: string; name: string; fid?: number }) => {
-        const response = await fetch('/api/frames', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                image,
-                name,
-                creatorAddress: creator.address,
-                creatorName: creator.name,
-                creatorFid: creator.fid,
-            }),
-        });
-
-        if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.error || 'Upload failed');
-        }
-
-        const data = await response.json();
-
-        // Refresh the list
-        await fetchFrames(true);
-
-        return data.frame as CommunityFrame;
+    const uploadFrame = async (
+        image: string,
+        name: string,
+        creator: { address?: string; name: string; fid?: number },
+    ) => {
+        return uploadMutation.mutateAsync({ image, name, creator });
     };
 
-    return { frames, isLoading, error, uploadFrame, refresh: () => fetchFrames(true) };
+    return {
+        frames,
+        isLoading,
+        error: error?.message || null,
+        uploadFrame,
+        refresh: () => queryClient.invalidateQueries({ queryKey: ['community-frames'] }),
+    };
 }

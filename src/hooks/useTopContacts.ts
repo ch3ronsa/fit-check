@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import sdk from '@farcaster/frame-sdk';
 
 export interface FarcasterContact {
@@ -8,39 +8,33 @@ export interface FarcasterContact {
     pfpUrl?: string;
 }
 
+async function getFarcasterFid(): Promise<number | null> {
+    try {
+        const context = await sdk.context;
+        return context?.user?.fid ?? null;
+    } catch {
+        return null;
+    }
+}
+
+async function fetchTopContacts(): Promise<FarcasterContact[]> {
+    const fid = await getFarcasterFid();
+    if (!fid) return [];
+
+    const response = await fetch(`/api/top-contacts?fid=${fid}`);
+    if (!response.ok) throw new Error('Failed to fetch contacts');
+
+    const data = await response.json();
+    return data.contacts || [];
+}
+
 export function useTopContacts() {
-    const [contacts, setContacts] = useState<FarcasterContact[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const { data: contacts = [], isLoading, error } = useQuery({
+        queryKey: ['top-contacts'],
+        queryFn: fetchTopContacts,
+        staleTime: 10 * 60 * 1000, // 10 minutes
+        retry: 1,
+    });
 
-    useEffect(() => {
-        const fetchContacts = async () => {
-            try {
-                const context = await sdk.context;
-                if (!context?.user?.fid) {
-                    return; // Not in Farcaster context
-                }
-
-                setIsLoading(true);
-                const fid = context.user.fid;
-
-                const response = await fetch(`/api/top-contacts?fid=${fid}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch contacts');
-                }
-
-                const data = await response.json();
-                setContacts(data.contacts || []);
-            } catch (err) {
-                console.error('Failed to fetch top contacts:', err);
-                setError(err instanceof Error ? err.message : 'Unknown error');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchContacts();
-    }, []);
-
-    return { contacts, isLoading, error };
+    return { contacts, isLoading, error: error?.message || null };
 }

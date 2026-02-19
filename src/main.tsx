@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import '@rainbow-me/rainbowkit/styles.css';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { Toaster } from 'sonner';
+import * as Sentry from '@sentry/react';
 
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -11,6 +12,22 @@ import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { config } from './wagmi';
 import './index.css';
+
+const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    tracesSampleRate: 0.1,
+    replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 1.0,
+    beforeSend(event) {
+      // Don't send events in development
+      if (import.meta.env.DEV) return null;
+      return event;
+    },
+  });
+}
 
 const queryClient = new QueryClient();
 

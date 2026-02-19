@@ -11,6 +11,14 @@ interface NeynarUser {
     pfp_url?: string;
 }
 
+interface NeynarReaction {
+    cast?: {
+        author?: {
+            fid: number;
+        };
+    };
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     setCorsHeaders(req, res);
 
@@ -59,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Count interactions with each author
         if (likesData.reactions) {
-            likesData.reactions.forEach((reaction: any) => {
+            likesData.reactions.forEach((reaction: NeynarReaction) => {
                 if (reaction.cast?.author?.fid) {
                     const authorFid = reaction.cast.author.fid;
                     // Don't count self

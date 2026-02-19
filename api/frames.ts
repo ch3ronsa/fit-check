@@ -5,6 +5,20 @@ import { setCorsHeaders } from './_lib/cors';
 const PINATA_JWT = process.env.VITE_PINATA_JWT;
 const PINATA_GATEWAY = 'https://blush-puny-sawfish-198.mypinata.cloud/ipfs';
 
+interface PinataPin {
+    ipfs_pin_hash: string;
+    date_pinned: string;
+    metadata?: {
+        name?: string;
+        keyvalues?: {
+            creatorAddress?: string;
+            creatorName?: string;
+            creatorFid?: string;
+            uses?: string;
+        };
+    };
+}
+
 export interface CommunityFrame {
     id: string;
     name: string;
@@ -66,7 +80,7 @@ async function handleList(_req: VercelRequest, res: VercelResponse) {
 
         const data = await response.json();
 
-        const frames: CommunityFrame[] = (data.rows || []).map((pin: any) => ({
+        const frames: CommunityFrame[] = (data.rows || []).map((pin: PinataPin) => ({
             id: pin.ipfs_pin_hash,
             name: pin.metadata?.name || 'Community Frame',
             ipfsHash: pin.ipfs_pin_hash,

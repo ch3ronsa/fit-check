@@ -19,7 +19,7 @@ describe('FRAMES', () => {
         });
     });
 
-    it('has at least 20 frames', () => {
-        expect(FRAMES.length).toBeGreaterThanOrEqual(20);
+    it('has 25 built-in frames plus the no-frame option', () => {
+        expect(FRAMES.length).toBe(26);
     });
 });

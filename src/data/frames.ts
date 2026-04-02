@@ -29,4 +29,6 @@ export const FRAMES: FrameOption[] = [
   { id: 'frame21', path: '/frames/frame21.png', name: 'Frame 21' },
   { id: 'frame22', path: '/frames/frame22.png', name: 'Frame 22' },
   { id: 'frame23', path: '/frames/frame23.png', name: 'Frame 23' },
+  { id: 'frame24', path: '/frames/frame24.png', name: 'Frame 24' },
+  { id: 'frame25', path: '/frames/frame25.png', name: 'Frame 25' },
 ];

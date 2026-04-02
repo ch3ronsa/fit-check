@@ -9,10 +9,10 @@ interface OnboardingModalProps {
 
 const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClose }) => {
     const steps = [
-        { icon: <Camera className="w-6 h-6" />, text: "Upload your fit check photo" },
-        { icon: <Sparkles className="w-6 h-6" />, text: "Get your Style Score (0-100)" },
-        { icon: <Share2 className="w-6 h-6" />, text: "Share your look anywhere" },
-        { icon: <Database className="w-6 h-6" />, text: "Mint as NFT on Base" },
+        { icon: <Camera className="w-6 h-6" />, text: 'Upload your fit check photo' },
+        { icon: <Sparkles className="w-6 h-6" />, text: 'Get your Style Score (0-100)' },
+        { icon: <Share2 className="w-6 h-6" />, text: 'Share your look anywhere' },
+        { icon: <Database className="w-6 h-6" />, text: 'Mint as NFT on Base' },
     ];
 
     return (
@@ -29,11 +29,10 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClose }) =>
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         className="bg-[var(--card-bg)] rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-800/50 relative"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Close Button */}
                         <button
                             onClick={onClose}
                             className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-800/50 transition-colors"
@@ -41,7 +40,6 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClose }) =>
                             <X size={20} className="text-gray-400" />
                         </button>
 
-                        {/* Header */}
                         <div className="text-center mb-6">
                             <div className="w-16 h-16 bg-base-blue rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <span className="text-2xl font-bold text-white">B</span>
@@ -50,11 +48,10 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClose }) =>
                                 Welcome to <span className="text-base-blue">Fit Check</span>
                             </h2>
                             <p className="text-gray-400 text-sm">
-                                Rate your outfit & mint on Base
+                                Rate your outfit and mint on Base
                             </p>
                         </div>
 
-                        {/* Steps */}
                         <div className="space-y-3 mb-6">
                             {steps.map((step, index) => (
                                 <div
@@ -69,7 +66,6 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClose }) =>
                             ))}
                         </div>
 
-                        {/* CTA Button */}
                         <button
                             onClick={onClose}
                             className="w-full bg-base-blue hover:bg-blue-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-base-blue/30"

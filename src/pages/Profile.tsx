@@ -25,18 +25,24 @@ const Profile: React.FC = () => {
     const [showCelebration, setShowCelebration] = useState(false);
 
     useEffect(() => {
+        let objectUrls: string[] = [];
+
         const loadFits = async () => {
-            // Migrate old localStorage data on first load
             await migrateFromLocalStorage();
 
             const savedFits = await getAllFits();
-            const displayFits: DisplayFit[] = savedFits.map(f => ({
-                id: f.id,
-                imageUrl: URL.createObjectURL(f.image),
-                score: f.score,
-                date: f.date,
-                message: f.message,
-            }));
+            const displayFits: DisplayFit[] = savedFits.map((fit) => {
+                const imageUrl = URL.createObjectURL(fit.image);
+                objectUrls.push(imageUrl);
+
+                return {
+                    id: fit.id,
+                    imageUrl,
+                    score: fit.score,
+                    date: fit.date,
+                    message: fit.message,
+                };
+            });
 
             setFits(displayFits);
             calculateStreak(displayFits);
@@ -44,11 +50,10 @@ const Profile: React.FC = () => {
 
         loadFits();
 
-        // Cleanup object URLs on unmount
         return () => {
-            fits.forEach(f => URL.revokeObjectURL(f.imageUrl));
+            objectUrls.forEach((url) => URL.revokeObjectURL(url));
+            objectUrls = [];
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const calculateStreak = (history: DisplayFit[]) => {
@@ -57,9 +62,9 @@ const Profile: React.FC = () => {
             return;
         }
 
-        const uniqueDates = Array.from(new Set(history.map(f => {
-            const d = parseFitDate(f);
-            return d.toLocaleDateString('en-CA');
+        const uniqueDates = Array.from(new Set(history.map((fit) => {
+            const date = parseFitDate(fit);
+            return date.toLocaleDateString('en-CA');
         }))).sort().reverse();
 
         if (uniqueDates.length === 0) return;
@@ -121,7 +126,6 @@ const Profile: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-4 pb-20 relative overflow-hidden">
-            {/* Celebration Overlay */}
             <AnimatePresence>
                 {showCelebration && (
                     <motion.div
@@ -142,7 +146,6 @@ const Profile: React.FC = () => {
             </AnimatePresence>
 
             <div className="max-w-lg mx-auto relative z-10">
-                {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
                         <button
@@ -155,7 +158,6 @@ const Profile: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Profile Card */}
                 <div className="bg-[var(--card-bg)] rounded-2xl p-6 mb-8 shadow-lg border border-gray-800/20 flex items-center gap-4 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-2 opacity-10">
                         <div className="w-32 h-32 bg-base-blue rounded-full blur-3xl"></div>
@@ -177,7 +179,6 @@ const Profile: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Streak Banner */}
                 <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-xl p-4 mb-8 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-orange-500 rounded-full text-white animate-bounce">
@@ -185,10 +186,10 @@ const Profile: React.FC = () => {
                         </div>
                         <div>
                             <p className="font-bold text-orange-500 text-lg">
-                                {streak > 0 ? `${streak} Day Streak!` : "Start your streak!"}
+                                {streak > 0 ? `${streak} Day Streak!` : 'Start your streak!'}
                             </p>
                             <p className="text-xs font-medium opacity-80">
-                                {streak > 0 ? "You've slayed your day! 🔥" : "Do a fit check today to ignite the flame."}
+                                {streak > 0 ? "You've slayed your day! 🔥" : 'Do a fit check today to ignite the flame.'}
                             </p>
                         </div>
                     </div>
@@ -234,7 +235,6 @@ const Profile: React.FC = () => {
                     </div>
                 )}
 
-                {/* Debug Info - only in development */}
                 {import.meta.env.DEV && (
                     <div className="mt-8 p-4 bg-black/20 rounded-lg text-xs font-mono text-gray-500 text-center">
                         <p>Debug Info:</p>

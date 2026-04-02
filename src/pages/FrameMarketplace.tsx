@@ -19,19 +19,20 @@ const FrameMarketplace: React.FC = () => {
         }
     });
 
-    const ogFrames = FRAMES.filter(f => f.path !== null);
+    const ogFrames = FRAMES.filter((frame) => frame.path !== null);
 
     const toggleInstall = async (frameId: string) => {
-        let wasInstalled = false;
+        const wasInstalled = installedFrames.has(frameId);
 
-        setInstalledFrames(prev => {
+        setInstalledFrames((prev) => {
             const next = new Set(prev);
-            wasInstalled = next.has(frameId);
+
             if (next.has(frameId)) {
                 next.delete(frameId);
             } else {
                 next.add(frameId);
             }
+
             localStorage.setItem('fitcheck_installed_frames', JSON.stringify([...next]));
             return next;
         });
@@ -45,8 +46,8 @@ const FrameMarketplace: React.FC = () => {
         }
     };
 
-    const trendingFrames = communityFrames.filter(f => f.uses >= 10);
-    const regularCommunity = communityFrames.filter(f => f.uses < 10);
+    const trendingFrames = communityFrames.filter((frame) => frame.uses >= 10);
+    const regularCommunity = communityFrames.filter((frame) => frame.uses < 10);
 
     const tabs: { id: TabFilter; label: string; icon: React.ReactNode; count: number }[] = [
         { id: 'all', label: 'All', icon: null, count: ogFrames.length + communityFrames.length },
@@ -58,7 +59,6 @@ const FrameMarketplace: React.FC = () => {
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-4 pb-24 animate-in fade-in slide-in-from-bottom-4">
             <div className="max-w-lg mx-auto">
-                {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
                         <button
@@ -90,9 +90,8 @@ const FrameMarketplace: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Tabs */}
                 <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
-                    {tabs.map(tab => (
+                    {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
@@ -109,7 +108,6 @@ const FrameMarketplace: React.FC = () => {
                     ))}
                 </div>
 
-                {/* OG Frames Section */}
                 {(activeTab === 'all' || activeTab === 'og') && ogFrames.length > 0 && (
                     <div className="mb-8">
                         {activeTab === 'all' && (
@@ -119,7 +117,7 @@ const FrameMarketplace: React.FC = () => {
                             </h2>
                         )}
                         <div className="grid grid-cols-3 gap-3">
-                            {ogFrames.map(frame => (
+                            {ogFrames.map((frame) => (
                                 <div
                                     key={frame.id}
                                     className="bg-[var(--card-bg)] rounded-xl border border-gray-800/50 overflow-hidden"
@@ -142,7 +140,6 @@ const FrameMarketplace: React.FC = () => {
                     </div>
                 )}
 
-                {/* Trending Section */}
                 {(activeTab === 'all' || activeTab === 'trending') && trendingFrames.length > 0 && (
                     <div className="mb-8">
                         <h2 className="font-bold text-lg mb-3 flex items-center gap-2">
@@ -150,7 +147,7 @@ const FrameMarketplace: React.FC = () => {
                             Trending
                         </h2>
                         <div className="grid grid-cols-3 gap-3">
-                            {trendingFrames.map(frame => (
+                            {trendingFrames.map((frame) => (
                                 <CommunityFrameCard
                                     key={frame.id}
                                     frame={frame}
@@ -163,7 +160,6 @@ const FrameMarketplace: React.FC = () => {
                     </div>
                 )}
 
-                {/* Community Section */}
                 {(activeTab === 'all' || activeTab === 'community') && (
                     <div className="mb-8">
                         {activeTab === 'all' && (
@@ -174,7 +170,7 @@ const FrameMarketplace: React.FC = () => {
                         )}
                         {regularCommunity.length > 0 ? (
                             <div className="grid grid-cols-3 gap-3">
-                                {regularCommunity.map(frame => (
+                                {regularCommunity.map((frame) => (
                                     <CommunityFrameCard
                                         key={frame.id}
                                         frame={frame}
@@ -200,7 +196,6 @@ const FrameMarketplace: React.FC = () => {
                     </div>
                 )}
 
-                {/* Loading */}
                 {isLoading && communityFrames.length === 0 && (
                     <div className="text-center py-12">
                         <RefreshCw className="w-8 h-8 mx-auto mb-3 text-gray-500 animate-spin" />
@@ -212,7 +207,6 @@ const FrameMarketplace: React.FC = () => {
     );
 };
 
-// Community Frame Card Component
 const CommunityFrameCard: React.FC<{
     frame: CommunityFrame;
     isInstalled: boolean;
@@ -228,10 +222,10 @@ const CommunityFrameCard: React.FC<{
                     className="w-full h-full object-contain"
                     loading="lazy"
                 />
-                {/* Install/Remove overlay on hover */}
                 <button
                     onClick={onToggle}
                     disabled={isBusy}
+                    aria-label={isInstalled ? `Remove ${frame.name}` : `Install ${frame.name}`}
                     className={`absolute inset-0 flex items-center justify-center transition-opacity ${
                         isInstalled
                             ? 'bg-green-500/20 opacity-100'
@@ -254,11 +248,7 @@ const CommunityFrameCard: React.FC<{
                 <div className="mt-0.5">
                     <p className="text-[10px] text-gray-500 truncate">by {frame.creator.name}</p>
                     <p className="text-[10px] text-gray-500">
-                        {frame.uses} total uses
-                        {' · '}
-                        {frame.installs} installs
-                        {' · '}
-                        {frame.mints} mints
+                        {frame.uses} total uses / {frame.installs} installs / {frame.mints} mints
                     </p>
                 </div>
             </div>

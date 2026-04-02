@@ -59,7 +59,7 @@ function Studio() {
   const { activeFilter, applyFilter, getFilterStyle } = useFilters();
   const { contacts: topContacts } = useTopContacts();
   const { isUploading, handleShare } = useShare();
-  const { isMinting, handleMint } = useMint();
+  const { isMinting, handleMint, isV2Enabled, mintFeeEth } = useMint();
   const { frames: communityFrames } = useCommunityFrames();
 
   // Merge OG frames with installed community frames
@@ -154,6 +154,11 @@ function Studio() {
       });
     }
   };
+
+  const selectedCommunityFrame = communityFrames.find(f => f.id === selectedFrame.id);
+  const mintLabel = selectedCommunityFrame && isV2Enabled
+    ? `${mintFeeEth} ETH mint. Revenue share goes to ${selectedCommunityFrame.creator.name}.`
+    : (isV2Enabled ? 'Mint with the V2 contract on Base.' : 'Mint with the live V1 contract on Base.');
 
   const handleToggleContact = (contact: FarcasterContact) => {
     setSelectedContacts(prev =>
@@ -259,6 +264,7 @@ function Studio() {
           onShare={onShare}
           onMint={onMint}
           onToggleContact={handleToggleContact}
+          mintLabel={mintLabel}
         />
       </main>
     </div>

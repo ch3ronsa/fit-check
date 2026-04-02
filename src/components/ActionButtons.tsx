@@ -14,6 +14,7 @@ interface ActionButtonsProps {
   onShare: () => void;
   onMint: () => void;
   onToggleContact: (contact: FarcasterContact) => void;
+  mintLabel?: string;
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -28,6 +29,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   onShare,
   onMint,
   onToggleContact,
+  mintLabel,
 }) => {
   return (
     <div className="mt-8 space-y-4">
@@ -108,6 +110,11 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           </button>
 
           {/* Mint Button */}
+          {mintLabel && (
+            <p className="text-xs text-gray-400 text-center">
+              {mintLabel}
+            </p>
+          )}
           <button
             onClick={onMint}
             disabled={isMinting}

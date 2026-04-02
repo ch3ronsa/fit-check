@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Share2, Flame, Calendar, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Share2, Flame, Calendar, CheckCircle2, Coins } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -7,6 +7,7 @@ import { useUserIdentity } from '../hooks/useUserIdentity';
 import { parseFitDate } from '../lib/utils';
 import { APP_URL } from '../config';
 import { getAllFits, migrateFromLocalStorage } from '../lib/db';
+import { useCreatorRewards } from '../hooks/useCreatorRewards';
 
 interface DisplayFit {
     id: string;
@@ -19,6 +20,14 @@ interface DisplayFit {
 const Profile: React.FC = () => {
     const navigate = useNavigate();
     const identity = useUserIdentity();
+    const {
+        isV2Enabled,
+        earningsEth,
+        creatorShareBps,
+        isWithdrawing,
+        canWithdraw,
+        withdrawEarnings,
+    } = useCreatorRewards();
 
     const [fits, setFits] = useState<DisplayFit[]>([]);
     const [streak, setStreak] = useState(0);
@@ -178,6 +187,30 @@ const Profile: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                {isV2Enabled && (
+                    <div className="bg-[var(--card-bg)] rounded-2xl p-5 mb-8 shadow-lg border border-gray-800/20">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Creator Earnings</p>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Coins size={18} className="text-base-blue" />
+                                    <span className="font-display font-bold text-2xl">{earningsEth} ETH</span>
+                                </div>
+                                <p className="text-sm text-gray-400">
+                                    Community frame mints send {creatorShareBps / 100}% of the mint fee to the frame creator.
+                                </p>
+                            </div>
+                            <button
+                                onClick={withdrawEarnings}
+                                disabled={isWithdrawing || !canWithdraw}
+                                className="px-4 py-2 rounded-xl bg-base-blue text-white font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isWithdrawing ? 'Withdrawing...' : 'Withdraw'}
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-xl p-4 mb-8 flex items-center justify-between">
                     <div className="flex items-center gap-3">

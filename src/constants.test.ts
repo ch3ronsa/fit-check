@@ -26,4 +26,10 @@ describe('contract constants', () => {
         expect(earnings).toBeDefined();
         expect(earnings!.stateMutability).toBe('view');
     });
+
+    it('V2 ABI has creatorShareBps view function', () => {
+        const share = CONTRACT_V2_ABI.find(fn => fn.name === 'creatorShareBps');
+        expect(share).toBeDefined();
+        expect(share!.stateMutability).toBe('view');
+    });
 });

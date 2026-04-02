@@ -60,7 +60,7 @@ function Studio() {
   const { contacts: topContacts } = useTopContacts();
   const { isUploading, handleShare } = useShare();
   const { isMinting, handleMint, isV2Enabled, mintFeeEth } = useMint();
-  const { frames: communityFrames } = useCommunityFrames();
+  const { frames: communityFrames, trackFrameUse } = useCommunityFrames();
 
   // Merge OG frames with installed community frames
   const installedIds: Set<string> = (() => {
@@ -145,13 +145,21 @@ function Studio() {
     }
   };
 
-  const onMint = () => {
+  const onMint = async () => {
     if (finalScore) {
       // Pass frame creator address for revenue sharing (community frames only)
       const frameCreator = communityFrames.find(f => f.id === selectedFrame.id);
-      handleMint(finalScore, finalMessage, {
+      const minted = await handleMint(finalScore, finalMessage, {
         frameCreatorAddress: frameCreator?.creator.address,
       });
+
+      if (minted && frameCreator) {
+        try {
+          await trackFrameUse(frameCreator.id, 'mint');
+        } catch (error) {
+          console.warn('Failed to track frame mint usage:', error);
+        }
+      }
     }
   };
 

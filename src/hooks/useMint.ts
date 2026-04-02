@@ -39,7 +39,7 @@ export const useMint = () => {
   const handleMint = async (finalScore: number, finalMessage: string, options?: MintOptions) => {
     if (!isConnected || !address) {
       toast.warning('Please connect your wallet first!');
-      return;
+      return false;
     }
     setIsMinting(true);
 
@@ -48,7 +48,7 @@ export const useMint = () => {
       if (!imageBlob) {
         toast.error('Could not generate image. Please try again.');
         setIsMinting(false);
-        return;
+        return false;
       }
 
       let tokenURI = "ipfs://placeholder";
@@ -97,6 +97,7 @@ export const useMint = () => {
       playSuccessSound();
       showBrowserNotification('mint_success');
       toast.success(`Minted on Base! TX: ${hash.slice(0, 10)}...`);
+      return true;
     } catch (error: unknown) {
       console.error("Mint failed", error);
       const err = error as Error;
@@ -105,6 +106,7 @@ export const useMint = () => {
       } else {
         toast.error(`Minting failed: ${err.message || 'Unknown error'}`);
       }
+      return false;
     } finally {
       setIsMinting(false);
     }

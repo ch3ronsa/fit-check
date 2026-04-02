@@ -8,7 +8,7 @@ type TabFilter = 'all' | 'og' | 'community' | 'trending';
 
 const FrameMarketplace: React.FC = () => {
     const navigate = useNavigate();
-    const { frames: communityFrames, isLoading, refresh } = useCommunityFrames();
+    const { frames: communityFrames, isLoading, refresh, trackFrameUse, isTrackingUse } = useCommunityFrames();
     const [activeTab, setActiveTab] = useState<TabFilter>('all');
     const [installedFrames, setInstalledFrames] = useState<Set<string>>(() => {
         try {
@@ -21,9 +21,12 @@ const FrameMarketplace: React.FC = () => {
 
     const ogFrames = FRAMES.filter(f => f.path !== null);
 
-    const toggleInstall = (frameId: string) => {
+    const toggleInstall = async (frameId: string) => {
+        let wasInstalled = false;
+
         setInstalledFrames(prev => {
             const next = new Set(prev);
+            wasInstalled = next.has(frameId);
             if (next.has(frameId)) {
                 next.delete(frameId);
             } else {
@@ -32,6 +35,14 @@ const FrameMarketplace: React.FC = () => {
             localStorage.setItem('fitcheck_installed_frames', JSON.stringify([...next]));
             return next;
         });
+
+        if (!wasInstalled) {
+            try {
+                await trackFrameUse(frameId, 'install');
+            } catch (error) {
+                console.warn('Failed to track frame install:', error);
+            }
+        }
     };
 
     const trendingFrames = communityFrames.filter(f => f.uses >= 10);
@@ -144,7 +155,8 @@ const FrameMarketplace: React.FC = () => {
                                     key={frame.id}
                                     frame={frame}
                                     isInstalled={installedFrames.has(frame.id)}
-                                    onToggle={() => toggleInstall(frame.id)}
+                                    onToggle={() => void toggleInstall(frame.id)}
+                                    isBusy={isTrackingUse}
                                 />
                             ))}
                         </div>
@@ -167,7 +179,8 @@ const FrameMarketplace: React.FC = () => {
                                         key={frame.id}
                                         frame={frame}
                                         isInstalled={installedFrames.has(frame.id)}
-                                        onToggle={() => toggleInstall(frame.id)}
+                                        onToggle={() => void toggleInstall(frame.id)}
+                                        isBusy={isTrackingUse}
                                     />
                                 ))}
                             </div>
@@ -204,7 +217,8 @@ const CommunityFrameCard: React.FC<{
     frame: CommunityFrame;
     isInstalled: boolean;
     onToggle: () => void;
-}> = ({ frame, isInstalled, onToggle }) => {
+    isBusy?: boolean;
+}> = ({ frame, isInstalled, onToggle, isBusy = false }) => {
     return (
         <div className="bg-[var(--card-bg)] rounded-xl border border-gray-800/50 overflow-hidden group">
             <div className="aspect-square bg-gray-900 p-2 relative">
@@ -217,11 +231,12 @@ const CommunityFrameCard: React.FC<{
                 {/* Install/Remove overlay on hover */}
                 <button
                     onClick={onToggle}
+                    disabled={isBusy}
                     className={`absolute inset-0 flex items-center justify-center transition-opacity ${
                         isInstalled
                             ? 'bg-green-500/20 opacity-100'
                             : 'bg-black/50 opacity-0 group-hover:opacity-100'
-                    }`}
+                    } ${isBusy ? 'cursor-wait' : ''}`}
                 >
                     {isInstalled ? (
                         <div className="bg-green-500 rounded-full p-1.5">
@@ -236,11 +251,15 @@ const CommunityFrameCard: React.FC<{
             </div>
             <div className="p-2">
                 <p className="text-xs font-medium truncate">{frame.name}</p>
-                <div className="flex items-center justify-between mt-0.5">
+                <div className="mt-0.5">
                     <p className="text-[10px] text-gray-500 truncate">by {frame.creator.name}</p>
-                    {frame.uses > 0 && (
-                        <span className="text-[10px] text-gray-500">{frame.uses} uses</span>
-                    )}
+                    <p className="text-[10px] text-gray-500">
+                        {frame.uses} total uses
+                        {' · '}
+                        {frame.installs} installs
+                        {' · '}
+                        {frame.mints} mints
+                    </p>
                 </div>
             </div>
         </div>

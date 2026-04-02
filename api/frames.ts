@@ -15,6 +15,8 @@ interface PinataPin {
             creatorName?: string;
             creatorFid?: string;
             uses?: string;
+            installs?: string;
+            mints?: string;
         };
     };
 }
@@ -31,7 +33,17 @@ export interface CommunityFrame {
     };
     category: 'community' | 'trending';
     uses: number;
+    installs: number;
+    mints: number;
     createdAt: string;
+}
+
+type UsageEventType = 'install' | 'mint';
+
+interface UsageUpdateRequest {
+    action: 'increment_usage';
+    ipfsHash: string;
+    eventType: UsageEventType;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -41,8 +53,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).end();
     }
 
-    // Rate limit: GET 30/min, POST 3/min per IP
-    const limit = req.method === 'POST' ? 3 : 30;
+    // Rate limit: GET 30/min, POST usage 30/min, POST upload 3/min per IP
+    const isUsageEvent = req.method === 'POST' && req.body?.action === 'increment_usage';
+    const limit = req.method === 'GET' ? 30 : (isUsageEvent ? 30 : 3);
     if (!checkRateLimit(req, res, { limit, windowSeconds: 60 })) {
         return sendRateLimitResponse(res);
     }
@@ -52,6 +65,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'POST') {
+        if (req.body?.action === 'increment_usage') {
+            return handleUsageUpdate(req, res);
+        }
         return handleUpload(req, res);
     }
 
@@ -80,7 +96,12 @@ async function handleList(_req: VercelRequest, res: VercelResponse) {
 
         const data = await response.json();
 
-        const frames: CommunityFrame[] = (data.rows || []).map((pin: PinataPin) => ({
+        const frames: CommunityFrame[] = (data.rows || []).map((pin: PinataPin) => {
+            const installs = Number(pin.metadata?.keyvalues?.installs || 0);
+            const mints = Number(pin.metadata?.keyvalues?.mints || 0);
+            const uses = Number(pin.metadata?.keyvalues?.uses || installs + mints);
+
+            return {
             id: pin.ipfs_pin_hash,
             name: pin.metadata?.name || 'Community Frame',
             ipfsHash: pin.ipfs_pin_hash,
@@ -90,10 +111,13 @@ async function handleList(_req: VercelRequest, res: VercelResponse) {
                 name: pin.metadata?.keyvalues?.creatorName || 'Anonymous',
                 fid: pin.metadata?.keyvalues?.creatorFid ? Number(pin.metadata.keyvalues.creatorFid) : undefined,
             },
-            category: (pin.metadata?.keyvalues?.uses || 0) >= 10 ? 'trending' : 'community',
-            uses: Number(pin.metadata?.keyvalues?.uses || 0),
+            category: uses >= 10 ? 'trending' : 'community',
+            uses,
+            installs,
+            mints,
             createdAt: pin.date_pinned || new Date().toISOString(),
-        }));
+            };
+        });
 
         // Sort by uses (trending first), then by date
         frames.sort((a, b) => b.uses - a.uses || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -151,6 +175,8 @@ async function handleUpload(req: VercelRequest, res: VercelResponse) {
                 creatorName: creatorName || 'Anonymous',
                 creatorFid: creatorFid?.toString() || '',
                 uses: '0',
+                installs: '0',
+                mints: '0',
             },
         });
         formData.append('pinataMetadata', metadata);
@@ -182,6 +208,8 @@ async function handleUpload(req: VercelRequest, res: VercelResponse) {
             },
             category: 'community',
             uses: 0,
+            installs: 0,
+            mints: 0,
             createdAt: new Date().toISOString(),
         };
 
@@ -189,5 +217,86 @@ async function handleUpload(req: VercelRequest, res: VercelResponse) {
     } catch (error) {
         console.error('Frame upload error:', error);
         return res.status(500).json({ error: 'Upload failed' });
+    }
+}
+
+async function handleUsageUpdate(req: VercelRequest, res: VercelResponse) {
+    if (!PINATA_JWT) {
+        return res.status(500).json({ error: 'Upload service not configured' });
+    }
+
+    try {
+        const { ipfsHash, eventType } = req.body as UsageUpdateRequest;
+
+        if (!ipfsHash || typeof ipfsHash !== 'string') {
+            return res.status(400).json({ error: 'Missing frame hash' });
+        }
+
+        if (eventType !== 'install' && eventType !== 'mint') {
+            return res.status(400).json({ error: 'Invalid usage event' });
+        }
+
+        const listResponse = await fetch(
+            'https://api.pinata.cloud/data/pinList?status=pinned&metadata[keyvalues][app]={"value":"base-fit-check-frame","op":"eq"}&pageLimit=1000',
+            {
+                headers: { 'Authorization': `Bearer ${PINATA_JWT}` },
+            }
+        );
+
+        if (!listResponse.ok) {
+            console.error('Pinata lookup error:', await listResponse.text());
+            return res.status(500).json({ error: 'Could not load frame metadata' });
+        }
+
+        const listData = await listResponse.json();
+        const pin = (listData.rows || []).find((row: PinataPin) => row.ipfs_pin_hash === ipfsHash) as PinataPin | undefined;
+
+        if (!pin) {
+            return res.status(404).json({ error: 'Frame not found' });
+        }
+
+        const installs = Number(pin.metadata?.keyvalues?.installs || 0);
+        const mints = Number(pin.metadata?.keyvalues?.mints || 0);
+        const nextInstalls = eventType === 'install' ? installs + 1 : installs;
+        const nextMints = eventType === 'mint' ? mints + 1 : mints;
+        const nextUses = nextInstalls + nextMints;
+
+        const updateResponse = await fetch('https://api.pinata.cloud/pinning/hashMetadata', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${PINATA_JWT}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ipfsPinHash: ipfsHash,
+                name: pin.metadata?.name || 'Community Frame',
+                keyvalues: {
+                    app: 'base-fit-check-frame',
+                    creatorAddress: pin.metadata?.keyvalues?.creatorAddress || '',
+                    creatorName: pin.metadata?.keyvalues?.creatorName || 'Anonymous',
+                    creatorFid: pin.metadata?.keyvalues?.creatorFid || '',
+                    uses: String(nextUses),
+                    installs: String(nextInstalls),
+                    mints: String(nextMints),
+                },
+            }),
+        });
+
+        if (!updateResponse.ok) {
+            console.error('Pinata metadata update error:', await updateResponse.text());
+            return res.status(500).json({ error: 'Could not update frame usage' });
+        }
+
+        return res.status(200).json({
+            frame: {
+                id: ipfsHash,
+                uses: nextUses,
+                installs: nextInstalls,
+                mints: nextMints,
+            },
+        });
+    } catch (error) {
+        console.error('Frame usage update error:', error);
+        return res.status(500).json({ error: 'Could not update frame usage' });
     }
 }

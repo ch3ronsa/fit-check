@@ -12,16 +12,23 @@ import { WALLETCONNECT_PROJECT_ID } from './config';
 
 const projectId = WALLETCONNECT_PROJECT_ID;
 
+export const hasWalletConnectProjectId = (walletConnectProjectId = projectId) =>
+    walletConnectProjectId.trim().length > 0;
+
+const recommendedWallets = hasWalletConnectProjectId()
+    ? [
+        coinbaseWallet,
+        walletConnectWallet,
+        metaMaskWallet,
+        rainbowWallet,
+    ]
+    : [coinbaseWallet];
+
 const connectors = connectorsForWallets(
     [
         {
             groupName: 'Recommended',
-            wallets: [
-                coinbaseWallet,
-                walletConnectWallet,
-                metaMaskWallet,
-                rainbowWallet,
-            ],
+            wallets: recommendedWallets,
         },
     ],
     {
